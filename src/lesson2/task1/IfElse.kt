@@ -73,7 +73,7 @@ fun ageDescription(age: Int): String = when {
     age % 10 == 1 -> "$age год" // Для XX1
     age % 10 == 0 -> "$age лет" // Для XX0
     age % 10 in 2..4 -> "$age года" // Для XX(2-4)
-    age % 10 > 5 -> "$age лет"
+    age % 10 >= 5 -> "$age лет"
     else -> "Ошибка ввода, данные не корректны ($age)"
 }
 
@@ -95,7 +95,7 @@ fun timeForHalfWay(
     return when {
         s1 >= s0 -> s0 / v1
         s2 + s1 >= s0 -> t1 + (s0 - s1) / v2
-        else -> t1 + t2 + (s0 - s2) / v3
+        else -> t1 + t2 + (s0 - s2 - s1) / v3
     }
 }
 

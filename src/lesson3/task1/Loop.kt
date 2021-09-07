@@ -74,8 +74,8 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  */
 fun digitNumber(n: Int): Int {
     return when {
-        n < 10 -> 1
-        else -> digitNumber(n / 10) + 1
+        abs(n) < 10 -> 1
+        else -> digitNumber(abs(n / 10)) + 1
     }
 }
 
@@ -172,6 +172,7 @@ fun lcm(m: Int, n: Int): Int {
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
     if (m % 2 == 0 && n % 2 == 0) return false
+    if (m == 1 || n == 1) return true
     val min = min(m, n)
     val max = max(m, n)
     for (i in 3..sqrt(min.toDouble()).toInt() step 2) {
