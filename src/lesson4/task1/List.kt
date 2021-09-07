@@ -126,11 +126,11 @@ fun abs(v: List<Double>): Double {
     return when {
         v.isEmpty() -> 0.0
         else -> {
-            var sqrt = 0.0
+            var sum = 0.0
             for (i in v) {
-                sqrt += i.pow(2)
+                sum += i.pow(2)
             }
-            sqrt(sqrt)
+            sqrt(sum)
         }
     }
 }
@@ -172,11 +172,11 @@ fun center(list: MutableList<Double>): MutableList<Double> {
  * C = a1b1 + a2b2 + ... + aNbN. Произведение пустых векторов считать равным 0.
  */
 fun times(a: List<Int>, b: List<Int>): Int {
-    var C = 0
+    var c = 0
     for (i in 0 until a.size) {
-        C += a[i] * b[i]
+        c += a[i] * b[i]
     }
-    return C
+    return c
 }
 
 /**
@@ -188,11 +188,11 @@ fun times(a: List<Int>, b: List<Int>): Int {
  * Значение пустого многочлена равно 0 при любом x.
  */
 fun polynom(p: List<Int>, x: Int): Int {
-    var p_x = 0
+    var pX = 0
     for (i in 0 until p.size) {
-        p_x += p[i] * x.pow(i)
+        pX += p[i] * x.pow(i)
     }
-    return p_x
+    return pX
 }
 
 private fun Int.pow(i: Int): Int {
@@ -238,7 +238,7 @@ fun factorize(n: Int): List<Int> {
     val result = mutableListOf<Int>()
     while (copyN > 1) {
         if (nextNum) {
-            testNum++;
+            testNum++
             if (!isPrime(testNum)) continue
             if (copyN % testNum != 0) continue
         }
@@ -293,7 +293,7 @@ fun convertToString(n: Int, base: Int): String {
     return v.fold("") { previousResult, element ->
         when {
             element < 10 -> previousResult + element
-            else -> previousResult + ('a'.toInt() + element - 10).toChar()
+            else -> previousResult + ('a'.code + element - 10).toChar()
         }
     }
 }
@@ -330,8 +330,8 @@ fun decimalFromString(str: String, base: Int): Int {
     val v = mutableListOf<Int>()
     for (i in str) {
         when {
-            i < 'a' -> v.add(i.toInt() - '0'.toInt())
-            else -> v.add(i.toInt() - 'a'.toInt() + 10)
+            i < 'a' -> v.add(i.code - '0'.code)
+            else -> v.add(i.code - 'a'.code + 10)
         }
     }
     return decimal(v, base)
@@ -358,7 +358,7 @@ private fun String.pow(i: Int): String = when (i) {
 }
 
 fun roman(n: Int): String {
-    val list = listOf<String>("IVX", "XLC", "CDM") //1-10, 10-100, 100-1000
+    val list = listOf("IVX", "XLC", "CDM") //1-10, 10-100, 100-1000
     return "M".pow(n / 1000) + numToRim((n / 100) % 10, list[2]) +
             numToRim((n / 10) % 10, list[1]) + numToRim(n % 10, list[0])
 }

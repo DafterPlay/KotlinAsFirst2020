@@ -203,17 +203,17 @@ fun countNumbers(n: Int): Int {
 }
 
 // Для степени десятки т.к. 10.pow() работать не хочет :(
-fun pow(n: Int): Int {
+fun exp10(n: Int): Int {
     return when (n) {
         0 -> 1
-        else -> pow(n - 1) * 10
+        else -> exp10(n - 1) * 10
     }
 }
 
 fun revert(n: Int): Int {
     return when {
         n < 10 -> n
-        else -> revert(n / 10) + n % 10 * pow(countNumbers(n) - 1)
+        else -> revert(n / 10) + n % 10 * exp10(countNumbers(n) - 1)
     }
 }
 
@@ -229,7 +229,7 @@ fun revert(n: Int): Int {
 fun isPalindrome(n: Int): Boolean {
     val countN = countNumbers(n)
     for (i in 0 until countN / 2) {
-        if ((n / pow(i)) % 10 != n / (pow(countN - 1 - i)) % 10) return false
+        if ((n / exp10(i)) % 10 != n / (exp10(countN - 1 - i)) % 10) return false
     }
     return true
 }
@@ -315,7 +315,7 @@ fun squareSequenceDigit(n: Int): Int {
         if (len < n) sqr++
     } while (len < n)
     val needNum = len - n
-    return (sqr.pow2() / pow(needNum)) % 10
+    return (sqr.pow2() / exp10(needNum)) % 10
 }
 
 private fun Int.pow2(): Int = this * this
@@ -341,5 +341,5 @@ fun fibSequenceDigit(n: Int): Int {
         len += countNumbers(num1)
     } while (len < n)
     val needNum = len - n
-    return (num1 / pow(needNum)) % 10
+    return (num1 / exp10(needNum)) % 10
 }
