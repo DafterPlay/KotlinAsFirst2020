@@ -188,6 +188,13 @@ class Tests {
                 mapOf("Emergency" to "911", "Police" to "02")
             )
         )
+        assertEquals(
+            mapOf("Emergency" to ""),
+            mergePhoneBooks(
+                mapOf("Emergency" to ""),
+                mapOf()
+            )
+        )
     }
 
     @Test
@@ -227,6 +234,13 @@ class Tests {
                 "печенье"
             )
         )
+        assertEquals(
+            "a",
+            findCheapestStuff(
+                mapOf("a" to ("" to 1.7976931348623157e+308)),
+                ""
+            )
+        )
     }
 
     @Test
@@ -235,6 +249,8 @@ class Tests {
         assertFalse(canBuildFrom(emptyList(), "foo"))
         assertTrue(canBuildFrom(listOf('a', 'b', 'o'), "baobab"))
         assertFalse(canBuildFrom(listOf('a', 'm', 'r'), "Marat"))
+        //Мои тесты
+        assertTrue(canBuildFrom(listOf('F'), "F"))
     }
 
     @Test
@@ -299,6 +315,26 @@ class Tests {
                 )
             )
         )
+        assertEquals(
+            mapOf(
+                "3" to setOf(),
+                "0" to setOf(),
+                "1c8" to setOf("2", "0", "1", "3"),
+                "211" to setOf(),
+                "1" to setOf("0", "3"),
+                "2" to setOf("1c8", "0", "1", "3")
+            ),
+            propagateHandshakes(
+                mapOf(
+                    "3" to setOf(),
+                    "0" to setOf(),
+                    "1c8" to setOf("2"),
+                    "211" to setOf(),
+                    "1" to setOf("0", "3"),
+                    "2" to setOf("1c8", "0", "1")
+                )
+            )
+        )
     }
 
     @Test
@@ -320,6 +356,10 @@ class Tests {
         assertEquals(
             Pair(0, 2),
             findSumOfTwo(listOf(3, 2, 3), 6)
+        )
+        assertEquals(
+            Pair(1, 2),
+            findSumOfTwo(listOf(1, 0, 0, 0, 0), 0)
         )
     }
 
@@ -352,6 +392,15 @@ class Tests {
                     "I5" to (9 to 6)
                 ),
                 13
+            )
+        )
+        assertEquals(
+            setOf("0"),
+            bagPacking(
+                mapOf(
+                    "0" to (1 to 1),
+                ),
+                1
             )
         )
     }

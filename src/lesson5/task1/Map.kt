@@ -185,7 +185,10 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
     val phones = mutableMapOf<String, String>()
     for (map in listOf(mapA, mapB)) {
         for ((i, j) in map) {
-            if (j !in phones[i] ?: "") phones[i] = phones[i]?.plus(", $j") ?: j
+            when (phones[i]) {
+                null -> phones[i] = j
+                else -> if (j !in phones[i]!!) phones[i] += ", $j"
+            }
         }
     }
     return phones
@@ -234,7 +237,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
     if (filteredMas.isEmpty()) return null
     var min = Double.MAX_VALUE
     var name = ""
-    for ((key, value) in filteredMas) if (value.second < min) {
+    for ((key, value) in filteredMas) if (value.second <= min) {
         min = value.second
         name = key
     }
@@ -250,7 +253,8 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  * Например:
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
-fun canBuildFrom(chars: List<Char>, word: String): Boolean = word.lowercase(Locale.getDefault()).all { it in chars }
+fun canBuildFrom(chars: List<Char>, word: String): Boolean =
+    word.lowercase(Locale.getDefault()).all { it in chars.toString().lowercase() }
 
 /**
  * Средняя (4 балла)
@@ -340,17 +344,22 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
         for (name in names) if (name !in newFriends) newFriends[name] = setOf()
     }
     // Перебор всех имен
-    for ((name, friendSet) in newFriends) {
-        // Пока список друзей меняется, добовлять друзей по рукопожатию первого порядка
-        do {
-            val size = newFriends[name]!!.count()
-            for (friendName in friendSet) {
-                newFriends[name] = newFriends[name]!!.union(newFriends[friendName]!!)
-            }
-            // Защита, от взаимной дружбы
-            newFriends[name] = newFriends[name]!! - name
-        } while (size != newFriends[name]!!.count())
-    }
+    do {
+        var exit = false
+        for ((name, friendSet) in newFriends) {
+            // Пока список друзей меняется, добовлять друзей по рукопожатию первого порядка
+            do {
+                val size = newFriends[name]!!.count()
+                for (friendName in friendSet) {
+                    newFriends[name] = newFriends[name]!!.union(newFriends[friendName]!!)
+                }
+                // Защита, от взаимной дружбы
+                newFriends[name] = newFriends[name]!! - name
+                if (size != newFriends[name]!!.count()) exit = true
+            } while (size != newFriends[name]!!.count())
+        }
+    } while (exit)
+
     return newFriends
 }
 
@@ -378,14 +387,20 @@ fun maxPair(pair: Pair<Int, Int>): Pair<Int, Int> {
     }
 }
 
+fun nextIndexInList(list: List<Int>, number: Int): Int {
+    val a = list.toMutableList()
+    a[a.indexOf(number)] = -1
+    return a.indexOf(number)
+}
+
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    val newSet = list.toSet()
+    val newSet = list.toSet().sorted()
     for (i in newSet) {
         when {
             number - i < 0 -> return Pair(-1, -1)
             number - i in newSet && number - i != i -> return maxPair(Pair(list.indexOf(number - i), list.indexOf(i)))
             number - i == i && list.filter { it == i }.size >= 2 ->
-                return maxPair(Pair(list.indexOf(i), list.lastIndexOf(i)))
+                return maxPair(Pair(list.indexOf(i), nextIndexInList(list, i)))
         }
     }
     return Pair(-1, -1)
@@ -416,7 +431,7 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 // я создал массив - дублер, только уже с набором сокровищь т.к. рекурсивный алгоритм сложен в реализации
 // при заданных типах данных и без использования глобальных переменных
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val newTreasures = treasures.filter { it.value.first < capacity }.toList()
+    val newTreasures = treasures.filter { it.value.first <= capacity }.toList()
     if (newTreasures.isEmpty()) return setOf()
     val n = newTreasures.size
     val a: Array<Array<Int>> = Array(n + 1) { Array(capacity + 1) { 0 } }
