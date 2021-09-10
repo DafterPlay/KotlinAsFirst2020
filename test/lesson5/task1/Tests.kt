@@ -203,6 +203,13 @@ class Tests {
                 mapOf("" to "")
             )
         )
+        assertEquals(
+            mapOf("" to ",/Z;v~:~9qE.p22\\t%-@3, 3"),
+            mergePhoneBooks(
+                mapOf("" to ",/Z;v~:~9qE.p22\\t%-@3"),
+                mapOf("" to "3")
+            )
+        )
     }
 
     @Test
@@ -259,6 +266,11 @@ class Tests {
         assertFalse(canBuildFrom(listOf('a', 'm', 'r'), "Marat"))
         //Мои тесты
         assertTrue(canBuildFrom(listOf('F'), "F"))
+        assertFalse(canBuildFrom(listOf('a', 'a'), " "))
+        assertTrue(canBuildFrom(listOf('a', 'a'), ""))
+        assertTrue(canBuildFrom(listOf(), ""))
+        assertTrue(canBuildFrom(listOf(' '), ""))
+        assertTrue(canBuildFrom(listOf(' '), " "))
     }
 
     @Test

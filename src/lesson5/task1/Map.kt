@@ -2,7 +2,6 @@
 
 package lesson5.task1
 
-import java.io.File.separator
 import java.util.*
 import kotlin.math.max
 
@@ -187,8 +186,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         for ((i, j) in map) {
             when {
                 phones[i] == null -> phones[i] = j
-                j !in phones[i]!! -> phones[i] += ", $j"
-                j == "" -> phones[i] += ", "
+                j !in phones[i]!!.split(", ") -> phones[i] += ", $j"
             }
         }
     }
@@ -255,7 +253,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean =
-    word.lowercase(Locale.getDefault()).all { it in chars.toString().lowercase() }
+    word.lowercase(Locale.getDefault()).all { it in chars.joinToString(separator = "", postfix = "").lowercase() }
 
 /**
  * Средняя (4 балла)
