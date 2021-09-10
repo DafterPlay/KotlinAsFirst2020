@@ -185,9 +185,10 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
     val phones = mutableMapOf<String, String>()
     for (map in listOf(mapA, mapB)) {
         for ((i, j) in map) {
-            when (phones[i]) {
-                null -> phones[i] = j
-                else -> if (j !in phones[i]!!) phones[i] += ", $j"
+            when {
+                phones[i] == null -> phones[i] = j
+                j !in phones[i]!! -> phones[i] += ", $j"
+                j == "" -> phones[i] += ", "
             }
         }
     }

@@ -188,11 +188,19 @@ class Tests {
                 mapOf("Emergency" to "911", "Police" to "02")
             )
         )
+        // Мои тесты
         assertEquals(
             mapOf("Emergency" to ""),
             mergePhoneBooks(
                 mapOf("Emergency" to ""),
                 mapOf()
+            )
+        )
+        assertEquals(
+            mapOf("" to "3~6| YesxhdDr, "),
+            mergePhoneBooks(
+                mapOf("" to "3~6| YesxhdDr"),
+                mapOf("" to "")
             )
         )
     }
