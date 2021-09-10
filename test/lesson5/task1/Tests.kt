@@ -316,6 +316,11 @@ class Tests {
             Pair(-1, -1),
             findSumOfTwo(listOf(1, 2, 3), 6)
         )
+        // Мои тесты
+        assertEquals(
+            Pair(0, 2),
+            findSumOfTwo(listOf(3, 2, 3), 6)
+        )
     }
 
     @Test
@@ -333,6 +338,20 @@ class Tests {
             bagPacking(
                 mapOf("Кубок" to (500 to 2000), "Слиток" to (1000 to 5000)),
                 450
+            )
+        )
+        // Мои тесты
+        assertEquals(
+            setOf("I4", "I2"),
+            bagPacking(
+                mapOf(
+                    "I1" to (3 to 1),
+                    "I2" to (4 to 6),
+                    "I3" to (5 to 4),
+                    "I4" to (8 to 7),
+                    "I5" to (9 to 6)
+                ),
+                13
             )
         )
     }
