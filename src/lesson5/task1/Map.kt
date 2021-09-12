@@ -2,6 +2,8 @@
 
 package lesson5.task1
 
+import ru.spbstu.wheels.allIndexed
+import ru.spbstu.wheels.defaultCopy
 import java.util.*
 import kotlin.math.max
 
@@ -100,9 +102,12 @@ fun buildWordSet(text: List<String>): MutableSet<String> {
  *     -> mapOf(5 to listOf("Семён", "Михаил"), 3 to listOf("Марат"))
  */
 fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
-    val v = mutableMapOf<Int, List<String>>()
+    val v = mutableMapOf<Int, MutableList<String>>()
     for ((i, j) in grades) {
-        v[j] = v[j]?.plus(i) ?: listOf(i)
+        when (v[j]) {
+            null -> v[j] = mutableListOf(i)
+            else -> v[j]!! += i
+        }
     }
     return v
 }
@@ -139,12 +144,8 @@ fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean {
  *     -> a changes to mutableMapOf() aka becomes empty
  */
 fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
-    val listToRemove = mutableListOf<String>()
-    for ((i, j) in a) {
-        if (b[i] == j) listToRemove.add(i)
-    }
-    for (i in listToRemove) {
-        a.remove(i)
+    for ((i, j) in b) {
+        if (a[i] == j) a.remove(i)
     }
 }
 
@@ -155,13 +156,7 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
  * В выходном списке не должно быть повторяющихся элементов,
  * т. е. whoAreInBoth(listOf("Марат", "Семён, "Марат"), listOf("Марат", "Марат")) == listOf("Марат")
  */
-fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
-    val listNames = mutableListOf<String>()
-    for (i in a) {
-        if (i in b && i !in listNames) listNames.add(i)
-    }
-    return listNames
-}
+fun whoAreInBoth(a: List<String>, b: List<String>): List<String> = a.intersect(b).toList()
 
 /**
  * Средняя (3 балла)
@@ -186,7 +181,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         for ((i, j) in map) {
             when {
                 phones[i] == null -> phones[i] = j
-                j !in phones[i]!!.split(", ") -> phones[i] += ", $j"
+                phones[i] != j -> phones[i] += ", $j"
             }
         }
     }
@@ -204,16 +199,12 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
  *     -> mapOf("MSFT" to 150.0, "NFLX" to 40.0)
  */
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
-    val v = mutableMapOf<String, Double>()
-    for ((first) in stockPrices) {
-        if (first !in v) {
-            val filteredMas = stockPrices.filter { first == it.first }
-            var sum = 0.0
-            for (i in filteredMas) sum += i.second
-            v[first] = sum / filteredMas.size
-        }
+    val answer = mutableMapOf<String, Double>()
+    for ((first) in stockPrices.associateBy { it.first }) {
+        val filteredMas = stockPrices.filter { first == it.first }
+        answer[first] = filteredMas.fold(0.0) { e1, e2 -> e1 + e2.second } / filteredMas.size
     }
-    return v
+    return answer
 }
 
 /**
@@ -252,8 +243,10 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  * Например:
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
-fun canBuildFrom(chars: List<Char>, word: String): Boolean =
-    word.lowercase(Locale.getDefault()).all { it in chars.joinToString(separator = "", postfix = "").lowercase() }
+fun canBuildFrom(chars: List<Char>, word: String): Boolean {
+    val a = word.toSet()
+    return a == chars.intersect(a)
+}
 
 /**
  * Средняя (4 балла)
@@ -292,7 +285,7 @@ fun hasAnagrams(words: List<String>): Boolean {
     val v = mutableListOf<String>()
     for (element in words) {
         //Сортировка букв в слове
-        v.add(element.toSortedSet().toString())
+        v.add(element.toSortedSet().joinToString(separator = "", postfix = ""))
     }
     //Расположение слов по порядку
     v.sort()
@@ -337,11 +330,13 @@ fun hasAnagrams(words: List<String>): Boolean {
  *        )
  */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
-    val newFriends = friends.toMutableMap()
-    // Добавление имен, которых нет в мапе, но с которыми знаком хоть кто-то
+    var newFriends = mutableMapOf<String, Set<String>>()
+    // Создаем пустые списки для каждого имени, встречающегося в мапе
     for ((i, names) in friends) {
-        for (name in names) if (name !in newFriends) newFriends[name] = setOf()
+        for (name in names) newFriends[name] = setOf()
     }
+    // Заполняем именами те, которые есть в изначальном списке
+    newFriends = (newFriends + friends) as MutableMap<String, Set<String>>
     // Перебор всех имен
     do {
         var exit = false
@@ -386,10 +381,11 @@ fun maxPair(pair: Pair<Int, Int>): Pair<Int, Int> {
     }
 }
 
-fun nextIndexInList(list: List<Int>, number: Int): Int {
+fun nextIndexInList(list: List<Int>, number: Int): Pair<Int, Int> {
     val a = list.toMutableList()
+    val b = a.indexOf(number)
     a[a.indexOf(number)] = -1
-    return a.indexOf(number)
+    return Pair(b, a.indexOf(number))
 }
 
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
@@ -397,9 +393,9 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
     for (i in newSet) {
         when {
             number - i < 0 -> return Pair(-1, -1)
-            number - i in newSet && number - i != i -> return maxPair(Pair(list.indexOf(number - i), list.indexOf(i)))
             number - i == i && list.filter { it == i }.size >= 2 ->
-                return maxPair(Pair(list.indexOf(i), nextIndexInList(list, i)))
+                return maxPair(nextIndexInList(list, i))
+            number - i != i && number - i in newSet -> return maxPair(Pair(list.indexOf(number - i), list.indexOf(i)))
         }
     }
     return Pair(-1, -1)
@@ -433,8 +429,8 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     val newTreasures = treasures.filter { it.value.first <= capacity }.toList()
     if (newTreasures.isEmpty()) return setOf()
     val n = newTreasures.size
-    val a: Array<Array<Int>> = Array(n + 1) { Array(capacity + 1) { 0 } }
-    val b: Array<Array<Set<String>>> = Array(n + 1) { Array(capacity + 1) { setOf() } }
+    val a: List<MutableList<Int>> = List(n + 1) { MutableList(capacity + 1) { 0 } }
+    val b: List<MutableList<Set<String>>> = List(n + 1) { MutableList(capacity + 1) { setOf() } }
     for (k in 1..n) {
         for (s in 1..capacity) {
             if (s >= newTreasures[k - 1].second.first) {

@@ -155,6 +155,10 @@ class Tests {
             emptyList<String>(),
             whoAreInBoth(listOf("Marat", "Mikhail"), listOf("Sveta", "Kirill"))
         )
+        assertEquals(
+            listOf("Марат"),
+            whoAreInBoth(listOf("Марат", "Семён", "Марат"), listOf("Марат", "Марат"))
+        )
     }
 
     @Test
