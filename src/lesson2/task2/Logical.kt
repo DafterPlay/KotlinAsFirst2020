@@ -3,6 +3,9 @@
 package lesson2.task2
 
 import lesson1.task1.sqr
+import java.lang.Integer.max
+import java.lang.Integer.min
+
 
 /**
  * Пример
@@ -59,4 +62,12 @@ fun circleInside(
  * кирпич 4 х 4 х 4 пройдёт через отверстие 4 х 4.
  * Вернуть true, если кирпич пройдёт
  */
-fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean = TODO()
+fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
+    var s: Int = a + b + c
+    val m = min(a, min(b, c))
+    val x = max(a, max(b, c))
+    s = s - m - x
+    val rm = min(r, s)
+    val rx = max(r, s)
+    return s <= rx && m <= rm
+}
