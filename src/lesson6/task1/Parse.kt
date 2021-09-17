@@ -402,22 +402,27 @@ fun nextBracketRevers(commands: String): Int {
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     commandsIsCorrect(commands)
     val cellsList: MutableList<Int> = List(size = cells) { 0 }.toMutableList()
+    if (commands == "") return cellsList
     var numberOfCommand = 0
     var numberOfCell: Int = cells / 2
-    for (i in 1..limit) {
-        when (commands[numberOfCommand]) {
-            '+' -> cellsList[numberOfCell]++
-            '-' -> cellsList[numberOfCell]--
-            '>' -> numberOfCell++
-            '<' -> numberOfCell--
-            '[' -> if (cellsList[numberOfCell] == 0)
-                numberOfCommand += nextBracket(commands.substring(numberOfCommand + 1))
-            ']' -> if (cellsList[numberOfCell] != 0)
-                numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand))
+    try {
+        for (i in 1..limit) {
+            when (commands[numberOfCommand]) {
+                '+' -> cellsList[numberOfCell]++
+                '-' -> cellsList[numberOfCell]--
+                '>' -> numberOfCell++
+                '<' -> numberOfCell--
+                '[' -> if (cellsList[numberOfCell] == 0)
+                    numberOfCommand += nextBracket(commands.substring(numberOfCommand + 1))
+                ']' -> if (cellsList[numberOfCell] != 0)
+                    numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand))
+            }
+            numberOfCommand++
+            if (numberOfCell > cells || numberOfCell < 0) throw IllegalStateException("The maximum value has been reached")
+            if (numberOfCommand >= commands.length) break
         }
-        numberOfCommand++
-        if (numberOfCell > cells || numberOfCell < 0) throw IllegalStateException("The maximum value has been reached")
-        if (numberOfCommand >= commands.length) break
+    } catch (e: IndexOutOfBoundsException) {
+        throw IllegalStateException("The maximum value has been reached")
     }
     return cellsList
 }
