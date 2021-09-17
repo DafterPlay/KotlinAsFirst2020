@@ -103,7 +103,7 @@ fun dateStrToDigit(str: String): String {
     if (month == -1) return ""
     try {
         val year = a[2].toInt()
-        if (year < 0 || year > 9999) return ""
+        if (year < 0) return ""
         val day = a[0].toInt()
         if (day < 1 || day > daysInMonth(month, year)) return ""
         return String.format("%02d.%02d.%d", day, month, year)
@@ -145,7 +145,7 @@ fun dateDigitToStr(digital: String): String {
         val month = numToMonth(a[1].toInt())
         if (month == "") return ""
         val year = a[2].toInt()
-        if (year < 0 || year > 9999) return ""
+        if (year < 0) return ""
         val day = a[0].toInt()
         if (day < 1 || day > daysInMonth(a[1].toInt(), year)) return ""
         return String.format("%d %s %d", day, month, year)
@@ -249,7 +249,7 @@ fun plusMinus(expression: String): Int {
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int =
-    "([а-я|a-z|0-9]+) \\1( |\$)".toRegex().find(str.lowercase())?.range?.first ?: -1
+    "([^ ]+) \\1( |\$)".toRegex().find(str.lowercase())?.range?.first ?: -1
 
 /**
  * Сложная (6 баллов)
@@ -416,7 +416,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
                 numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand - 1))
         }
         numberOfCommand++
-        if (numberOfCell > cells) throw IllegalStateException("The maximum value has been reached")
+        if (numberOfCell > cells || numberOfCell < 0) throw IllegalStateException("The maximum value has been reached")
         if (numberOfCommand >= commands.length) break
     }
     return cellsList

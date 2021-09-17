@@ -42,6 +42,7 @@ class Tests {
         assertEquals("", dateStrToDigit("32 сентября 2011"))
         assertEquals("", dateStrToDigit("29 февраля 1993"))
         assertEquals("", dateStrToDigit("фф сентября фф"))
+        assertEquals("01.01.15334", dateStrToDigit("01 января 15334"))
     }
 
     @Test
@@ -55,6 +56,7 @@ class Tests {
         assertEquals("", dateDigitToStr("32.09.2011"))
         assertEquals("", dateDigitToStr("29.02.1993"))
         assertEquals("", dateDigitToStr("32.09.2011"))
+        assertEquals("1 января 16350", dateDigitToStr("01.01.16350"))
     }
 
     @Test
@@ -126,6 +128,7 @@ class Tests {
         assertEquals(-1, firstDuplicateIndex("Мы пошли прямо располагался магазин"))
         assertEquals(0, firstDuplicateIndex("This this is my home"))
         assertEquals(-1, firstDuplicateIndex(""))
+        assertEquals(0, firstDuplicateIndex("\\\\ \\\\"))
     }
 
     @Test
