@@ -2,6 +2,12 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+import lesson4.task1.numToRim
+import lesson4.task1.roman
+import lesson5.task1.propagateHandshakes
+import java.text.DateFormatSymbols
+
 // Урок 6: разбор строк, исключения
 // Максимальное количество баллов = 13
 // Рекомендуемое количество баллов = 11
@@ -74,7 +80,37 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+fun monthToNum(str: String): Int = when (str) {
+    "января" -> 1
+    "февраля" -> 2
+    "марта" -> 3
+    "апреля" -> 4
+    "мая" -> 5
+    "июня" -> 6
+    "июля" -> 7
+    "августа" -> 8
+    "сентября" -> 9
+    "октября" -> 10
+    "ноября" -> 11
+    "декабря" -> 12
+    else -> -1
+}
+
+fun dateStrToDigit(str: String): String {
+    val a = str.split(" ")
+    if (a.size != 3) return ""
+    val month = monthToNum(a[1])
+    if (month == -1) return ""
+    try {
+        val year = a[2].toInt()
+        if (year < 0 || year > 9999) return ""
+        val day = a[0].toInt()
+        if (day < 1 || day > daysInMonth(month, year)) return ""
+        return String.format("%02d.%02d.%d", day, month, year)
+    } catch (e: NumberFormatException) {
+        return ""
+    }
+}
 
 /**
  * Средняя (4 балла)
@@ -86,7 +122,37 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun numToMonth(num: Int): String = when (num) {
+    1 -> "января"
+    2 -> "февраля"
+    3 -> "марта"
+    4 -> "апреля"
+    5 -> "мая"
+    6 -> "июня"
+    7 -> "июля"
+    8 -> "августа"
+    9 -> "сентября"
+    10 -> "октября"
+    11 -> "ноября"
+    12 -> "декабря"
+    else -> ""
+}
+
+fun dateDigitToStr(digital: String): String {
+    val a = digital.split(".")
+    if (a.size != 3) return ""
+    try {
+        val month = numToMonth(a[1].toInt())
+        if (month == "") return ""
+        val year = a[2].toInt()
+        if (year < 0 || year > 9999) return ""
+        val day = a[0].toInt()
+        if (day < 1 || day > daysInMonth(a[1].toInt(), year)) return ""
+        return String.format("%d %s %d", day, month, year)
+    } catch (e: NumberFormatException) {
+        return ""
+    }
+}
 
 /**
  * Средняя (4 балла)
@@ -102,7 +168,15 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun toNormalPhone(phone: String): String = phone.fold("") { previousResult, element ->
+    if (element !in "- ") previousResult + element else previousResult
+}
+
+fun flattenPhoneNumber(phone: String): String {
+    val normalizedPhone = toNormalPhone(phone)
+    if (!normalizedPhone.contains("^\\+?\\d*(\\(\\d+\\)\\d*)?\$".toRegex())) return ""
+    return "\\+*\\d+".toRegex().findAll(phone).map { it.value }.toList().joinToString(separator = "", postfix = "")
+}
 
 /**
  * Средняя (5 баллов)
@@ -114,7 +188,11 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    if (!"$jumps ".contains("^((\\d+|%|-) )+\$".toRegex())) return -1
+    val jumpInt = "\\d+".toRegex().findAll(jumps).map { it.value }.toList()
+    return jumpInt.maxOrNull()?.toInt() ?: -1
+}
 
 /**
  * Сложная (6 баллов)
@@ -127,7 +205,11 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    if (!"$jumps ".contains("^(\\d+ %*[+\\-%] )+\$".toRegex())) return -1
+    val jumpInt = "(\\d+) %*\\+".toRegex().findAll(jumps).map { it.groupValues[1] }.toList()
+    return jumpInt.maxOrNull()?.toInt() ?: -1
+}
 
 /**
  * Сложная (6 баллов)
@@ -138,7 +220,24 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun calculate(list: List<String>): Int {
+    var sum = list[0].toInt()
+    for (i in 1 until list.size step 2) {
+        when (list[i]) {
+            "+" -> sum += list[i + 1].toInt()
+            "-" -> sum -= list[i + 1].toInt()
+            else -> throw IllegalArgumentException("Input line format violation")
+        }
+    }
+    return sum
+}
+
+fun plusMinus(expression: String): Int {
+    if (!expression.contains("^(\\d+ [+-] )*\\d+\$".toRegex()))
+        throw IllegalArgumentException("Input line format violation")
+    val example = "([^ ]+) ".toRegex().findAll("$expression ").map { it.groupValues[1] }.toList()
+    return calculate(example)
+}
 
 /**
  * Сложная (6 баллов)
@@ -149,7 +248,8 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int =
+    "([а-я|a-z|0-9]+) \\1( |\$)".toRegex().find(str.lowercase())?.range?.first ?: -1
 
 /**
  * Сложная (6 баллов)
@@ -162,7 +262,18 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше нуля либо равны нулю.
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String {
+    if (!description.contains("^([^ ]+ (\\d+(\\.\\d+)?)(; |\$))+\$".toRegex())) return ""
+    val descriptionList = description.split("; ")
+    var max = Pair("", -1.0)
+    for (i in descriptionList) {
+        val splitDescription = i.split(" ")
+        if (max.second < splitDescription[1].toDouble()) {
+            max = Pair(splitDescription[0], splitDescription[1].toDouble())
+        }
+    }
+    return max.first
+}
 
 /**
  * Сложная (6 баллов)
@@ -175,7 +286,34 @@ fun mostExpensive(description: String): String = TODO()
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
-fun fromRoman(roman: String): Int = TODO()
+fun symbolsToInt(symbol: Char): Int = when (symbol) {
+    'I' -> 1
+    'V' -> 5
+    'X' -> 10
+    'L' -> 50
+    'C' -> 100
+    'D' -> 500
+    'M' -> 1000
+    else -> -1
+}
+
+// Алогритм позаимствован и адаптирован из https://www.cyberforum.ru/pascal/thread66998.html
+// Сам я до этого не дошел
+fun fromRoman(roman: String): Int {
+    if (roman == "") return -1
+    var symbolInIntFirst = 0
+    var sum = 0
+    for (i in roman) {
+        val symbolInIntSecond = symbolInIntFirst.toInt()
+        symbolInIntFirst = when (val symbolInInt = symbolsToInt(i)) {
+            -1 -> return -1
+            else -> symbolInInt
+        }
+        sum += if (symbolInIntFirst > symbolInIntSecond) -2 * symbolInIntSecond + symbolInIntFirst else symbolInIntFirst
+    }
+    if (roman != roman(sum)) return -1 // Быстрее, чем другие проверки, которые я придумал
+    return sum
+}
 
 /**
  * Очень сложная (7 баллов)
@@ -213,4 +351,73 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun commandsIsCorrect(commands: String) {
+    val command = "+-<> "
+    var counter = 0
+    for (i in commands) {
+        when (i) {
+            '[' -> counter++
+            ']' -> {
+                counter--
+                if (counter < 0) throw IllegalArgumentException("Incorrect Input")
+            }
+            !in command -> throw IllegalArgumentException("Incorrect Input")
+        }
+    }
+    if (counter != 0) throw IllegalArgumentException("Incorrect Input")
+}
+
+fun nextBracket(commands: String): Int {
+    var counterBracket = 0
+    var newCellNumber = 0
+    for (i in commands) {
+        if (counterBracket == 0 && i == ']')
+            return newCellNumber + 1
+        when (i) {
+            '[' -> counterBracket++
+            ']' -> counterBracket--
+        }
+        newCellNumber++
+    }
+    // В теории до сюда никогда не дойдет, добавил т.к. компилятор хотел return
+    throw IllegalArgumentException("Incorrect Input")
+}
+
+fun nextBracketRevers(commands: String): Int {
+    var counterBracket = 0
+    var newCellNumber = 0
+    for (i in commands.reversed()) {
+        if (counterBracket == 0 && i == '[')
+            return newCellNumber + 2
+        when (i) {
+            '[' -> counterBracket++
+            ']' -> counterBracket--
+        }
+        newCellNumber++
+    }
+    // В теории до сюда никогда не дойдет, добавил т.к. компилятор хотел return
+    throw IllegalArgumentException("Incorrect Input")
+}
+
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    commandsIsCorrect(commands)
+    val cellsList: MutableList<Int> = List(size = cells) { 0 }.toMutableList()
+    var numberOfCommand = 0
+    var numberOfCell: Int = cells / 2
+    for (i in 1..limit) {
+        when (commands[numberOfCommand]) {
+            '+' -> cellsList[numberOfCell]++
+            '-' -> cellsList[numberOfCell]--
+            '>' -> numberOfCell++
+            '<' -> numberOfCell--
+            '[' -> if (cellsList[numberOfCell] == 0)
+                numberOfCommand += nextBracket(commands.substring(numberOfCommand + 1))
+            ']' -> if (cellsList[numberOfCell] != 0)
+                numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand - 1))
+        }
+        numberOfCommand++
+        if (numberOfCell > cells) throw IllegalStateException("The maximum value has been reached")
+        if (numberOfCommand >= commands.length) break
+    }
+    return cellsList
+}

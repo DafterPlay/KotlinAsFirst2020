@@ -41,6 +41,7 @@ class Tests {
         assertEquals("03.04.2011", dateStrToDigit("3 апреля 2011"))
         assertEquals("", dateStrToDigit("32 сентября 2011"))
         assertEquals("", dateStrToDigit("29 февраля 1993"))
+        assertEquals("", dateStrToDigit("фф сентября фф"))
     }
 
     @Test
@@ -53,6 +54,7 @@ class Tests {
         assertEquals("", dateDigitToStr("ab.cd.ef"))
         assertEquals("", dateDigitToStr("32.09.2011"))
         assertEquals("", dateDigitToStr("29.02.1993"))
+        assertEquals("", dateDigitToStr("32.09.2011"))
     }
 
     @Test
@@ -66,6 +68,11 @@ class Tests {
         assertEquals("+42566789", flattenPhoneNumber("+42(56 -- 67)89"))
         assertEquals("", flattenPhoneNumber("ab-123"))
         assertEquals("", flattenPhoneNumber("134_+874"))
+        assertEquals("", flattenPhoneNumber("+12 (12) (12)4-5"))
+        assertEquals("", flattenPhoneNumber("+12 +(12)4-5"))
+        assertEquals("", flattenPhoneNumber("++12 (12)4-5"))
+        assertEquals("", flattenPhoneNumber("+12 (124-5"))
+        assertEquals("", flattenPhoneNumber("12+(124-5)"))
     }
 
     @Test
@@ -75,7 +82,9 @@ class Tests {
         assertEquals(-1, bestLongJump("% - - % -"))
         assertEquals(754, bestLongJump("700 717 707 % 754"))
         assertEquals(-1, bestLongJump("700 + 700"))
-
+        assertEquals(-1, bestLongJump("700 %% 700"))
+        assertEquals(-1, bestLongJump("700% % 700"))
+        assertEquals(2, bestLongJump("1 % 2"))
     }
 
     @Test
@@ -84,6 +93,8 @@ class Tests {
         assertEquals(226, bestHighJump("226 +"))
         assertEquals(-1, bestHighJump("???"))
         assertEquals(230, bestHighJump("220 + 224 %+ 228 %- 230 + 232 %%- 234 %"))
+        assertEquals(-1, bestHighJump("226 %%%-"))
+        assertEquals(-1, bestHighJump(""))
     }
 
     @Test
@@ -98,6 +109,11 @@ class Tests {
         assertThrows(IllegalArgumentException::class.java) { plusMinus("4 - -2") }
         assertThrows(IllegalArgumentException::class.java) { plusMinus("44 - - 12") }
         assertThrows(IllegalArgumentException::class.java) { plusMinus("4 - + 12") }
+        assertThrows(IllegalArgumentException::class.java) { plusMinus("2 + 31 - 40 +") }
+        assertThrows(IllegalArgumentException::class.java) { plusMinus("2 + 31 - 40+ 13") }
+        assertThrows(IllegalArgumentException::class.java) { plusMinus("2 + 31 - 40 ++ 13") }
+        assertEquals(-3954, plusMinus("2 + 31 - 4000 + 13"))
+        assertThrows(IllegalArgumentException::class.java) { plusMinus("") }
     }
 
     @Test
@@ -107,6 +123,9 @@ class Tests {
         assertEquals(9, firstDuplicateIndex("Он пошёл в в школу"))
         assertEquals(40, firstDuplicateIndex("Яблоко упало на ветку с ветки оно упало на на землю"))
         assertEquals(9, firstDuplicateIndex("Мы пошли прямо Прямо располагался магазин"))
+        assertEquals(-1, firstDuplicateIndex("Мы пошли прямо располагался магазин"))
+        assertEquals(0, firstDuplicateIndex("This this is my home"))
+        assertEquals(-1, firstDuplicateIndex(""))
     }
 
     @Test
@@ -115,6 +134,12 @@ class Tests {
         assertEquals("", mostExpensive(""))
         assertEquals("Курица", mostExpensive("Хлеб 39.9; Молоко 62.5; Курица 184.0; Конфеты 89.9"))
         assertEquals("Вино", mostExpensive("Вино 255.0"))
+        assertEquals("Конфеты", mostExpensive("Хлеб 39.9; Молоко 62; Курица 184; Конфеты 184.5"))
+        assertEquals("", mostExpensive("Хлеб39.9; Молоко 62; Курица 184; Конфеты 184.5"))
+        assertEquals("", mostExpensive("Хлеб 39.9 Молоко 62; Курица 184; Конфеты 184.5"))
+        assertEquals("", mostExpensive("Хлеб 39.9;Молоко 62; Курица 184; Конфеты 184.5"))
+        assertEquals("", mostExpensive("Хлеб 39.9 Молоко 62; Курица 184; Конфеты 184.5;"))
+        assertEquals("", mostExpensive("Конфеты 184.5;"))
     }
 
     @Test
@@ -126,6 +151,9 @@ class Tests {
         assertEquals(694, fromRoman("DCXCIV"))
         assertEquals(49, fromRoman("XLIX"))
         assertEquals(-1, fromRoman("Z"))
+        assertEquals(-1, fromRoman("IIIII"))
+        assertEquals(-1, fromRoman("IIIX"))
+        assertEquals(-1, fromRoman(""))
     }
 
     @Test
