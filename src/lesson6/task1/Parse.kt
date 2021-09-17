@@ -388,7 +388,7 @@ fun nextBracketRevers(commands: String): Int {
     var newCellNumber = 0
     for (i in commands.reversed()) {
         if (counterBracket == 0 && i == '[')
-            return newCellNumber + 2
+            return newCellNumber + 1
         when (i) {
             '[' -> counterBracket++
             ']' -> counterBracket--
@@ -413,7 +413,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             '[' -> if (cellsList[numberOfCell] == 0)
                 numberOfCommand += nextBracket(commands.substring(numberOfCommand + 1))
             ']' -> if (cellsList[numberOfCell] != 0)
-                numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand - 1))
+                numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand))
         }
         numberOfCommand++
         if (numberOfCell > cells || numberOfCell < 0) throw IllegalStateException("The maximum value has been reached")

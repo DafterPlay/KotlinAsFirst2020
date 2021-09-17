@@ -160,6 +160,22 @@ class Tests {
     }
 
     @Test
+    fun nextBracket() {
+        assertEquals(5, nextBracket("....]"))
+        assertEquals(1, nextBracket("]"))
+        assertEquals(3, nextBracket("[]][]"))
+        assertEquals(9, nextBracket("[[[][]]]]"))
+    }
+
+    @Test
+    fun nextBracketRevers() {
+        assertEquals(5, nextBracketRevers("[...."))
+        assertEquals(1, nextBracketRevers("["))
+        assertEquals(3, nextBracketRevers("[][[]"))
+        assertEquals(9, nextBracketRevers("[[[[][]]]"))
+    }
+
+    @Test
     @Tag("7")
     fun computeDeviceCells() {
         assertEquals(listOf(0, 0, 0, 0, 0, 1, 1, 1, 1, 1), computeDeviceCells(10, "+>+>+>+>+", 10000))
@@ -180,5 +196,6 @@ class Tests {
         assertThrows(IllegalArgumentException::class.java) { computeDeviceCells(10, "===", 3) }
         assertThrows(IllegalArgumentException::class.java) { computeDeviceCells(10, "+>+>[+>", 3) }
         assertThrows(IllegalStateException::class.java) { computeDeviceCells(20, ">>>>>>>>>>>>>", 12) }
+        assertThrows(IllegalStateException::class.java) { computeDeviceCells(20, "<<<<<<<<<<<<<<<<<<<", 1000) }
     }
 }
