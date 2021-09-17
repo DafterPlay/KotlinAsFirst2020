@@ -418,7 +418,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
                     numberOfCommand -= nextBracketRevers(commands.substring(0, numberOfCommand))
             }
             numberOfCommand++
-            if (numberOfCell > cells || numberOfCell < 0) throw IllegalStateException("The maximum value has been reached")
+            if (numberOfCell >= cells || numberOfCell < 0) throw IllegalStateException("The maximum value has been reached")
             if (numberOfCommand >= commands.length) break
         }
     } catch (e: IndexOutOfBoundsException) {

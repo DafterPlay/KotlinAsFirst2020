@@ -201,5 +201,6 @@ class Tests {
         assertThrows(IllegalStateException::class.java) { computeDeviceCells(0, ">>>", 1000) }
         assertEquals(listOf<Int>(), computeDeviceCells(0, "", 6000))
         assertThrows(IllegalStateException::class.java) { computeDeviceCells(0, "++", 1000) }
+        assertThrows(IllegalStateException::class.java) { computeDeviceCells(1, ">", 1000) }
     }
 }
