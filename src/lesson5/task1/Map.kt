@@ -245,7 +245,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     val a = word.lowercase(Locale.getDefault()).toSet()
-    val b: List<Char> = chars.map { it.lowercaseChar() }.toList()
+    val b: List<Char> = chars.map { it.lowercaseChar() }
     return b.containsAll(a)
 }
 
@@ -331,13 +331,13 @@ fun hasAnagrams(words: List<String>): Boolean {
  *        )
  */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
-    var newFriends = mutableMapOf<String, Set<String>>()
+    val newFriends = mutableMapOf<String, Set<String>>()
     // Создаем пустые списки для каждого имени, встречающегося в мапе
-    for ((i, names) in friends) {
+    for ((_, names) in friends) {
         for (name in names) newFriends[name] = setOf()
     }
     // Заполняем именами те, которые есть в изначальном списке
-    newFriends = (newFriends + friends) as MutableMap<String, Set<String>>
+    newFriends.putAll(friends)
     // Перебор всех имен
     do {
         var exit = false
