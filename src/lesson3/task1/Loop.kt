@@ -183,6 +183,15 @@ fun sin(x: Double, eps: Double): Double = TODO()
  */
 fun cos(x: Double, eps: Double): Double = TODO()
 
+
+fun stepen(x: Int, n: Int): Int {
+    var c = 1
+    for (i in 1..n) {
+        c *= x
+    }
+    return c
+}
+
 /**
  * Сложная (4 балла)
  *
@@ -193,19 +202,25 @@ fun cos(x: Double, eps: Double): Double = TODO()
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun squareSequenceDigit(n: Int): Int {
-    var sch = 0
-    var sch2 = 1
-    while (sch < n) {
-        var k = sch2 * sch2
-        while (k != 0) {
-            val l = k % 10
-            sch++
-            if (sch == n) {
-                return l
-            }
-            k /= 10
+    var count = 0
+    var ch = 1
+    while (count < n) {
+        val k = ch * ch
+        var c = k
+        var l = 0
+        while (c != 0) {
+            l++
+            c /= 10
         }
-        sch2++
+        if (l + count == n) {
+            return k % 10
+        }
+        if (l + count > n) {
+            return k / stepen(10, l + count - n) % 10
+        } else {
+            count += l
+            ch++
+        }
     }
     return -1
 }
@@ -220,7 +235,7 @@ fun squareSequenceDigit(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var sch = 3
+    var count = 3
     var ch1 = 1
     var ch2 = 1
     var ch3 = 2
@@ -230,18 +245,23 @@ fun fibSequenceDigit(n: Int): Int {
     if (n == 3) {
         return 2
     }
-    while (sch < n) {
+    while (count < n) {
         ch1 = ch3
         ch3 += ch2
         ch2 = ch1
         var c = ch3
+        var l = 0
         while (c != 0) {
-            val k = c % 10
-            sch++
-            if (sch == n) {
-                return k
-            }
+            l++
             c /= 10
+        }
+        if (l + count == n) {
+            return ch3 % 10
+        }
+        if (l + count > n) {
+            return ch3 / stepen(10, l + count - n) % 10
+        } else {
+            count += l
         }
     }
     return -1
