@@ -4,13 +4,16 @@ package lesson7.task1
 
 import ru.spbstu.wheels.appendLine
 import java.io.File
+import java.lang.Integer.max
 import java.util.*
+import kotlin.math.pow
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
 // Максимальное количество баллов = 55
 // Рекомендуемое количество баллов = 20
 // Вместе с предыдущими уроками (пять лучших, 3-7) = 55/103
+
 
 /**
  * Пример
@@ -618,15 +621,17 @@ fun markdownToHtml(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     val lines = Pair(File(inputName).readLines() + "", File(inputName).readLines().map { countSpacesInStart(it) } + -1)
     var numberOfLine = 0
-    while (numberOfLine < lines.first.size - 2) {
+    while (numberOfLine < lines.first.size - 1) {
         val lineNow = lines.first[numberOfLine]
         if ((lineNow.startsWith("* ") && countAsterisk(lineNow) % 2 == 1) || lineNow.startsWith("1. ")) {
             fun toList(prefix: String) {
                 str += "<$prefix>"
                 val countSpaces = lines.second[numberOfLine]
                 do {
+                    if (!lines.first[numberOfLine].trim().startsWith("*") && prefix == "ul") break
+                    if (!lines.first[numberOfLine].trim().contains("""^\d*\. """.toRegex()) && prefix == "ol") break
                     str += "<li>${
-                        formateLine(lines.first[numberOfLine].trim().replace("""^(\*|\d*.) """.toRegex(), ""))
+                        formateLine(lines.first[numberOfLine].trim().replace("""^(\*|\d*\.) """.toRegex(), ""))
                     }"
                     if (lines.second[numberOfLine] < lines.second[numberOfLine + 1]) {
                         numberOfLine++
@@ -675,8 +680,36 @@ fun markdownToHtml(inputName: String, outputName: String) {
 2350
  *
  */
+// Создает строку из quantity сиволов symbol
+// Сильно укорачивает код и упрощает чтение
+fun buildString(symbol: Char, quantity: Int): String = buildString { for (i in 0 until quantity) append(symbol) }
+
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val rhvLength = rhv.toString().length
+    val lenString =
+        ((rhv / (10.0).pow(rhvLength - 1).toInt()) * lhv).toString().length + rhvLength
+    val writer = File(outputName).bufferedWriter()
+    // Создание первых 4 строк
+    writer.appendLine(
+        buildString(' ', lenString - lhv.toString().length) + lhv +
+                "\n*" + buildString(' ', lenString - rhvLength - 1) + rhv +
+                "\n" + buildString('-', lenString) +
+                "\n" + buildString(' ', lenString - (rhv % 10 * lhv).toString().length)
+                + rhv % 10 * lhv
+    )
+    // Создание строк, начинающихся с +
+    var rhvCopy = rhv / 10
+    for (i in 0..rhvLength - 2) {
+        writer.appendLine(
+            "+" +
+                    buildString(' ', lenString - (rhvCopy % 10 * lhv).toString().length - 2 - i)
+                    + rhvCopy % 10 * lhv
+        )
+        rhvCopy /= 10
+    }
+    // Добавление строки ответа
+    writer.appendLine(buildString('-', lenString) + "\n " + rhv * lhv)
+    writer.close()
 }
 
 
@@ -696,11 +729,86 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
 -132
 ----
 3
-
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  *
  */
-fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+
+// Функция для перевода инта в лист, до числа toNum
+fun intToListFor(number: Int, toNum: Int): List<Int> {
+    val result = mutableListOf<Int>()
+    var copyNumber = number
+    for (i in 0 until number.toString().length - toNum) {
+        result.add(copyNumber % 10)
+        copyNumber /= 10
+    }
+    return result.reversed()
 }
+
+private val Int.len: Int
+    get() = this.toString().length
+
+private fun Int.pow(i: Int): Int {
+    var result = 1
+    for (j in 0 until i) {
+        result *= this
+    }
+    return result
+}
+
+fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
+    val writer = File(outputName).bufferedWriter()
+    // Первая строка
+    writer.appendLine(" $lhv | $rhv")
+    val lenLhv = lhv.len
+    var lastNum = 0
+    // На каком числе с конца остановились
+    var counter = 0
+    // Подсчет первого числа
+    for (i in (lenLhv - 1) downTo 0) {
+        lastNum = lastNum * 10 + (lhv / 10.pow(i)) % 10
+        counter += 1
+        if (lastNum / rhv != 0)
+            break
+    }
+    // Вторая строка
+    writer.appendLine(
+        "-${lastNum - lastNum % rhv}" +
+                buildString(' ', lenLhv - lastNum.len + 3) +
+                "${lhv / rhv}"
+    )
+    val result = intToListFor(lhv / rhv, 1)
+    var indent = 0
+    for ((counterOfResult, i) in intToListFor(lhv, lastNum.len).withIndex()) {
+        val integerPart = lastNum - lastNum % rhv // То, что мы вычитаем
+        val remains = lastNum % rhv // Остаток от деления
+        writer.appendLine(
+            // Отступ перед ----
+            buildString(' ', indent) +
+                    // Построили полосу из ----
+                    buildString('-', max(lastNum.len, integerPart.len + 1)) + "\n" +
+                    // Построили пробелы
+                    buildString(' ', max(lastNum.len, integerPart.len + 1) + indent - remains.len) +
+                    // Добавили остаток от деления и снесли цифру
+                    "$remains$i\n" +
+                    // Добавили пробелы перед вычитаемым
+                    buildString(
+                        ' ',
+                        max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+                    ) +
+                    // Добавить вычитание
+                    "-${result[counterOfResult] * rhv}"
+        )
+        indent = max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+        lastNum = "$remains$i".toInt()
+    }
+    writer.appendLine(
+        buildString(' ', indent) +
+                buildString('-', max(lastNum.len, (lastNum - lastNum % rhv).len + 1)) + "\n" +
+                buildString(' ', max(lastNum.len, (lastNum - lastNum % rhv).len + 1) + indent - (lastNum % rhv).len) +
+                // Добавили остаток от деления и снесли цифру
+                "${lastNum % rhv}"
+    )
+    writer.close()
+}
+
 
