@@ -145,6 +145,13 @@ Basic, Ruby, Swift.
     @Test
     @Tag("20")
     fun alignFileByWidth() {
+        alignFileByWidth("input/width_in2.txt", "temp.txt")
+        assertFileContent(
+            "temp.txt",
+            """ааааааба    ааааааба   /   ААААААБА
+                |ааааааба --- ааааааба --- ааааааба:""".trimMargin()
+        )
+        File("temp.txt").delete()
         alignFileByWidth("input/width_in1.txt", "temp.txt")
         assertFileContent(
             "temp.txt",
@@ -232,6 +239,14 @@ Basic, Ruby, Swift.
         )
         assertFileContent("temp.txt", "Zzdrавствуy,\nmyyr!!!")
         File("temp.txt").delete()
+
+        transliterate(
+            "input/trans_in2.txt",
+            mapOf('7' to "a"),
+            "temp.txt"
+        )
+        assertFileContent("temp.txt", "a")
+        File("temp.txt").delete()
     }
 
     @Test
@@ -264,11 +279,22 @@ Basic, Ruby, Swift.
         File("temp.html").delete()
     }
 
+    private fun checkHtmlSimpleExample_2() {
+        val result = File("temp.html").readText().replace(Regex("[\\s\\n\\t]"), "")
+        val expected =
+            """<html><body><p>=N^&M(7Quky`MH5@</p></body></html>""".trimIndent().replace(Regex("[\\s\\n\\t]"), "")
+        assertEquals(expected, result)
+
+        File("temp.html").delete()
+    }
+
     @Test
     @Tag("22")
     fun markdownToHtmlSimple() {
         markdownToHtmlSimple("input/markdown_simple.md", "temp.html")
         checkHtmlSimpleExample()
+        markdownToHtmlSimple("input/markdown_simple_2.md", "temp.html")
+        checkHtmlSimpleExample_2()
     }
 
     private fun checkHtmlListsExample() {
@@ -401,6 +427,22 @@ Basic, Ruby, Swift.
              """
         )
 
+        test(
+            31102,
+            38649,
+            """
+                  31102
+            *     38649
+            -----------
+                 279918
+            +   124408
+            +  186612
+            + 248816
+            + 93306
+            -----------
+             1202061198
+             """
+        )
     }
 
     @Test
@@ -463,7 +505,14 @@ Basic, Ruby, Swift.
                   0
              """
         )
-
+        test(
+            137061,
+            85831,
+            """137061 | 85831
+                |-85831   1
+                |------
+                | 51230""".trimMargin()
+        )
         File("temp.txt").delete()
     }
 }

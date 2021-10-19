@@ -6,7 +6,6 @@ import ru.spbstu.wheels.appendLine
 import java.io.File
 import java.lang.Integer.max
 import java.util.*
-import kotlin.math.pow
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -129,7 +128,7 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
 fun sibilants(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     for (i in File(inputName).readLines())
-        writer.appendLine(i.replace("[ЖжШш][Ыы]|[ЧчЩщЖжШш][Яя]|[ЧчЩщЖжШш][Юю]".toRegex(), transform = {
+        writer.appendLine(i.replace("[ЧчЩщЖжШш][ЯяЮюЫы]".toRegex(), transform = {
             when (it.value[1]) {
                 'ы' -> "${it.value[0]}и"
                 'Ы' -> "${it.value[0]}И"
@@ -206,15 +205,15 @@ fun alignFileByWidth(inputName: String, outputName: String) {
             writer.appendLine(textList[i])
             continue
         }
-        val needSpaces = maxLen - textList[i].length + wordsInText[i].size - 1
-        var remainingSpaces = needSpaces % (wordsInText[i].size - 1) + 1
+        val needSpaces = maxLen - wordsInText[i].fold("") { line, add -> line + add }.length
+        var remainingSpaces = needSpaces % (wordsInText[i].size - 1)
         writer.appendLine(
             wordsInText[i].fold("") { line, add ->
                 remainingSpaces -= 1
-                line + buildString {
+                line + add + buildString {
                     for (a in (if (remainingSpaces + 1 > 0) 0 else 1)..needSpaces / (wordsInText[i].size - 1))
                         append(' ')
-                } + add
+                }
             }.trim()
         )
     }
@@ -253,7 +252,7 @@ fun top20Words(inputName: String): Map<String, Int> {
         true -> mapWords
         else -> {
             val maxValue = mapWords.map { newIt -> newIt.value }.sorted()
-            mapWords.filter { it.value >= maxValue[maxValue.size - 21] }
+            mapWords.filter { it.value >= maxValue[maxValue.size - 20] }
         }
     }
 }
@@ -306,9 +305,9 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
         writer.appendLine(
             i.fold("") { last, it ->
                 last + when (it.lowercaseChar() in lowerDictionary) {
-                    true -> when (it.isLowerCase()) {
-                        true -> lowerDictionary[it.lowercaseChar()]
-                        else -> lowerDictionary[it.lowercaseChar()]?.replaceFirstChar { it.uppercaseChar() }
+                    true -> when (!it.isLowerCase() && it.isLetter()) {
+                        true -> lowerDictionary[it.lowercaseChar()]?.replaceFirstChar { it.uppercaseChar() }
+                        else -> lowerDictionary[it.lowercaseChar()]
                     }
                     else -> it
                 }
@@ -354,12 +353,12 @@ fun checkUniqueness(str: String): Boolean {
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
     val uniquenessWords =
         File(inputName).readLines().filter { checkUniqueness(it.lowercase(Locale.getDefault())) }
+    val writer = File(outputName).bufferedWriter()
     if (uniquenessWords.isNotEmpty()) {
         val maxSize = uniquenessWords.maxOrNull()!!.length
-        val writer = File(outputName).bufferedWriter()
         writer.appendLine(uniquenessWords.filter { it.length == maxSize }.joinToString())
-        writer.close()
     }
+    writer.close()
 }
 
 /**
@@ -459,7 +458,10 @@ fun formateLine(i: String): String {
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
-    for (i in File(inputName).readLines()) {
+    var file = File(inputName).readLines()
+    while (file[0].isEmpty()) file = file.subList(1, file.size)
+    while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
+    for (i in file) {
         str += formateLine(i)
     }
     str += "</p></body></html>"
@@ -619,7 +621,10 @@ fun countAsterisk(str: String): Int {
 
 fun markdownToHtml(inputName: String, outputName: String) {
     var str = "<html><body><p>"
-    val lines = Pair(File(inputName).readLines() + "", File(inputName).readLines().map { countSpacesInStart(it) } + -1)
+    var file = File(inputName).readLines()
+    while (file[0].isEmpty()) file = file.subList(1, file.size)
+    while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
+    val lines = Pair(file + "", file.map { countSpacesInStart(it) } + -1)
     var numberOfLine = 0
     while (numberOfLine < lines.first.size - 1) {
         val lineNow = lines.first[numberOfLine]
@@ -687,7 +692,7 @@ fun buildString(symbol: Char, quantity: Int): String = buildString { for (i in 0
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
     val rhvLength = rhv.toString().length
     val lenString =
-        ((rhv / (10.0).pow(rhvLength - 1).toInt()) * lhv).toString().length + rhvLength
+        (lhv * rhv).toString().length + 1
     val writer = File(outputName).bufferedWriter()
     // Создание первых 4 строк
     writer.appendLine(
@@ -757,8 +762,6 @@ private fun Int.pow(i: Int): Int {
 
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    // Первая строка
-    writer.appendLine(" $lhv | $rhv")
     val lenLhv = lhv.len
     var lastNum = 0
     // На каком числе с конца остановились
@@ -770,6 +773,8 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
         if (lastNum / rhv != 0)
             break
     }
+    // Первая строка
+    writer.appendLine((if (lastNum.len <= ((lastNum / rhv) * rhv).len) " " else "") + "$lhv | $rhv")
     // Вторая строка
     writer.appendLine(
         "-${lastNum - lastNum % rhv}" +
