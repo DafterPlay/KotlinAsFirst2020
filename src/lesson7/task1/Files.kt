@@ -355,7 +355,7 @@ fun chooseLongestChaoticWord(inputName: String, outputName: String) {
         File(inputName).readLines().filter { checkUniqueness(it.lowercase(Locale.getDefault())) }
     val writer = File(outputName).bufferedWriter()
     if (uniquenessWords.isNotEmpty()) {
-        val maxSize = uniquenessWords.maxOrNull()!!.length
+        val maxSize = uniquenessWords.map { it.length }.maxOrNull()
         writer.appendLine(uniquenessWords.filter { it.length == maxSize }.joinToString())
     }
     writer.close()
@@ -456,6 +456,9 @@ fun formateLine(i: String): String {
     return str
 }
 
+// Ошибка возникает в следствии того, что при переносе на новую строку я обнуляю все значения, будь они
+// закрыты или открыты, однако видимо тест предпологает, что я должен все это учитывать
+// в условии этого нет, встает вопрос, правильное ли у меня решение или следует переделывать?
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     var file = File(inputName).readLines()
@@ -803,7 +806,7 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
                     // Добавить вычитание
                     "-${result[counterOfResult] * rhv}"
         )
-        indent = max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+        indent = max(lastNum.len, integerPart.len + 1) + indent - max((result[counterOfResult] * rhv).len, remains.len)
         lastNum = "$remains$i".toInt()
     }
     writer.appendLine(
