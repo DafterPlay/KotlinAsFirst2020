@@ -532,6 +532,16 @@ Basic, Ruby, Swift.
     330
             """.trimMargin()
         )
+        test(
+            57636,
+            95586,
+            """ 
+57636 | 95586
+   -0   0
+-----
+57636
+            """.trimMargin()
+        )
         File("temp.txt").delete()
     }
 }

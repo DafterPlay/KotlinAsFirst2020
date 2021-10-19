@@ -462,8 +462,12 @@ fun formateLine(i: String): String {
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     var file = File(inputName).readLines()
-    while (file[0].isEmpty()) file = file.subList(1, file.size)
-    while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
+    try {
+        while (file[0].isEmpty()) file = file.subList(1, file.size)
+        while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
+    } catch (e: StringIndexOutOfBoundsException) {
+        throw StringIndexOutOfBoundsException("I dont know how!")
+    }
     for (i in file) {
         str += formateLine(i)
     }
@@ -765,57 +769,70 @@ private fun Int.pow(i: Int): Int {
 
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val lenLhv = lhv.len
-    var lastNum = 0
-    // На каком числе с конца остановились
-    var counter = 0
-    // Подсчет первого числа
-    for (i in (lenLhv - 1) downTo 0) {
-        lastNum = lastNum * 10 + (lhv / 10.pow(i)) % 10
-        counter += 1
-        if (lastNum / rhv != 0)
-            break
-    }
-    // Первая строка
-    writer.appendLine((if (lastNum.len <= ((lastNum / rhv) * rhv).len) " " else "") + "$lhv | $rhv")
-    // Вторая строка
-    writer.appendLine(
-        "-${lastNum - lastNum % rhv}" +
-                buildString(' ', lenLhv - lastNum.len + 3) +
-                "${lhv / rhv}"
-    )
-    val result = intToListFor(lhv / rhv, 1)
-    var indent = 0
-    for ((counterOfResult, i) in intToListFor(lhv, lastNum.len).withIndex()) {
-        val integerPart = lastNum - lastNum % rhv // То, что мы вычитаем
-        val remains = lastNum % rhv // Остаток от деления
+    // Рассмотрим == 0, как частный случай
+    if (lhv / rhv == 0) {
         writer.appendLine(
-            // Отступ перед ----
+            (if (lhv.len <= ((lhv / rhv) * rhv).len) " " else "") + "$lhv | $rhv\n" +
+                    buildString(' ', lhv.len - 2) + "-0   0\n" +
+                    buildString('-', max(lhv.len, 2)) + "\n" + (if (lhv < 10) " " else "") + "$lhv"
+        )
+    } else {
+        val lenLhv = lhv.len
+        var lastNum = 0
+        // На каком числе с конца остановились
+        var counter = 0
+        // Подсчет первого числа
+        for (i in (lenLhv - 1) downTo 0) {
+            lastNum = lastNum * 10 + (lhv / 10.pow(i)) % 10
+            counter += 1
+            if (lastNum / rhv != 0)
+                break
+        }
+        // Первая строка
+        writer.appendLine((if (lastNum.len <= ((lastNum / rhv) * rhv).len) " " else "") + "$lhv | $rhv")
+        // Вторая строка
+        writer.appendLine(
+            "-${lastNum - lastNum % rhv}" +
+                    buildString(' ', lenLhv - lastNum.len + 3) +
+                    "${lhv / rhv}"
+        )
+        val result = intToListFor(lhv / rhv, 1)
+        var indent = 0
+        for ((counterOfResult, i) in intToListFor(lhv, lastNum.len).withIndex()) {
+            val integerPart = lastNum - lastNum % rhv // То, что мы вычитаем
+            val remains = lastNum % rhv // Остаток от деления
+            writer.appendLine(
+                // Отступ перед ----
+                buildString(' ', indent) +
+                        // Построили полосу из ----
+                        buildString('-', max(lastNum.len, integerPart.len + 1)) + "\n" +
+                        // Построили пробелы
+                        buildString(' ', max(lastNum.len, integerPart.len + 1) + indent - remains.len) +
+                        // Добавили остаток от деления и снесли цифру
+                        "$remains$i\n" +
+                        // Добавили пробелы перед вычитаемым
+                        buildString(
+                            ' ',
+                            max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+                        ) +
+                        // Добавить вычитание
+                        "-${result[counterOfResult] * rhv}"
+            )
+            indent =
+                max(lastNum.len, integerPart.len + 1) + indent - max((result[counterOfResult] * rhv).len, remains.len)
+            lastNum = "$remains$i".toInt()
+        }
+        writer.appendLine(
             buildString(' ', indent) +
-                    // Построили полосу из ----
-                    buildString('-', max(lastNum.len, integerPart.len + 1)) + "\n" +
-                    // Построили пробелы
-                    buildString(' ', max(lastNum.len, integerPart.len + 1) + indent - remains.len) +
-                    // Добавили остаток от деления и снесли цифру
-                    "$remains$i\n" +
-                    // Добавили пробелы перед вычитаемым
+                    buildString('-', max(lastNum.len, (lastNum - lastNum % rhv).len + 1)) + "\n" +
                     buildString(
                         ' ',
-                        max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+                        max(lastNum.len, (lastNum - lastNum % rhv).len + 1) + indent - (lastNum % rhv).len
                     ) +
-                    // Добавить вычитание
-                    "-${result[counterOfResult] * rhv}"
+                    // Добавили остаток от деления и снесли цифру
+                    "${lastNum % rhv}"
         )
-        indent = max(lastNum.len, integerPart.len + 1) + indent - max((result[counterOfResult] * rhv).len, remains.len)
-        lastNum = "$remains$i".toInt()
     }
-    writer.appendLine(
-        buildString(' ', indent) +
-                buildString('-', max(lastNum.len, (lastNum - lastNum % rhv).len + 1)) + "\n" +
-                buildString(' ', max(lastNum.len, (lastNum - lastNum % rhv).len + 1) + indent - (lastNum % rhv).len) +
-                // Добавили остаток от деления и снесли цифру
-                "${lastNum % rhv}"
-    )
     writer.close()
 }
 
