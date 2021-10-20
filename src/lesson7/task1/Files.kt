@@ -423,32 +423,41 @@ fun formateLine(i: String): String {
         val charNow = needNew ?: iteratorI.nextChar()
         needNew = null
         str += when (charNow) {
-            '*' -> when (val nextChar = iteratorI.nextChar()) {
-                '*' -> if (countB == 0) {
-                    countB++; "<b>"
-                } else {
-                    countB--; "</b>"
-                }
-                else -> {
-                    needNew = nextChar
-                    if (countI == 0) {
-                        countI++; "<i>"
+            '*' -> when (iteratorI.hasNext()) {
+                true -> when (val nextChar = iteratorI.nextChar()) {
+                    '*' -> if (countB == 0) {
+                        countB++; "<b>"
                     } else {
-                        countI--; "</i>"
+                        countB--; "</b>"
+                    }
+                    else -> {
+                        needNew = nextChar
+                        if (countI == 0) {
+                            countI++; "<i>"
+                        } else {
+                            countI--; "</i>"
+                        }
                     }
                 }
-
-            }
-            '~' -> when (val nextChar = iteratorI.nextChar()) {
-                '~' -> if (countS == 0) {
-                    countS++; "<s>"
+                else -> if (countI == 0) {
+                    countI++; "<i>"
                 } else {
-                    countS--; "</s>"
+                    countI--; "</i>"
                 }
-                else -> {
-                    needNew = nextChar
-                    charNow
+            }
+            '~' -> when (iteratorI.hasNext()) {
+                true -> when (val nextChar = iteratorI.nextChar()) {
+                    '~' -> if (countS == 0) {
+                        countS++; "<s>"
+                    } else {
+                        countS--; "</s>"
+                    }
+                    else -> {
+                        needNew = nextChar
+                        charNow
+                    }
                 }
+                else -> charNow
             }
             else -> charNow
         }
@@ -462,12 +471,8 @@ fun formateLine(i: String): String {
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     var file = File(inputName).readLines()
-    try {
-        while (file[0].isEmpty()) file = file.subList(1, file.size)
-        while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
-    } catch (e: StringIndexOutOfBoundsException) {
-        throw StringIndexOutOfBoundsException("I dont know how!")
-    }
+    while (file[0].isEmpty()) file = file.subList(1, file.size)
+    while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
     for (i in file) {
         str += formateLine(i)
     }
