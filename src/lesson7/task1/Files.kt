@@ -406,14 +406,14 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun formateLine(i: String): String {
+fun formateLine(i: String, counter: Triple<Int, Int, Int>): Pair<String, Triple<Int, Int, Int>> {
     var str = ""
-    var countI = 0
-    var countB = 0
-    var countS = 0
+    var countI = counter.second
+    var countB = counter.first
+    var countS = counter.third
     if (i.isEmpty()) {
         str += "</p><p>"
-        return str
+        return Pair(str, Triple(countI, countB, countS))
     }
     val iteratorI = i.iterator()
     // Сделана т.к. итератором нельзя сделать шаг назад, а бывают ситуации, когда он нужен
@@ -462,7 +462,7 @@ fun formateLine(i: String): String {
             else -> charNow
         }
     }
-    return str
+    return Pair(str, Triple(countI, countB, countS))
 }
 
 // Ошибка возникает в следствии того, что при переносе на новую строку я обнуляю все значения, будь они
@@ -473,8 +473,11 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var file = File(inputName).readLines()
     while (file[0].isEmpty()) file = file.subList(1, file.size)
     while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
+    var counter = Triple(0, 0, 0)
     for (i in file) {
-        str += formateLine(i)
+        val strAndCounter = formateLine(i, counter)
+        str += strAndCounter.first
+        counter = strAndCounter.second
     }
     str += "</p></body></html>"
     val writer = File(outputName).bufferedWriter()
@@ -638,6 +641,7 @@ fun markdownToHtml(inputName: String, outputName: String) {
     while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
     val lines = Pair(file + "", file.map { countSpacesInStart(it) } + -1)
     var numberOfLine = 0
+    var counter = Triple(0, 0, 0)
     while (numberOfLine < lines.first.size - 1) {
         val lineNow = lines.first[numberOfLine]
         if ((lineNow.startsWith("* ") && countAsterisk(lineNow) % 2 == 1) || lineNow.startsWith("1. ")) {
@@ -647,9 +651,11 @@ fun markdownToHtml(inputName: String, outputName: String) {
                 do {
                     if (!lines.first[numberOfLine].trim().startsWith("*") && prefix == "ul") break
                     if (!lines.first[numberOfLine].trim().contains("""^\d*\. """.toRegex()) && prefix == "ol") break
-                    str += "<li>${
-                        formateLine(lines.first[numberOfLine].trim().replace("""^(\*|\d*\.) """.toRegex(), ""))
-                    }"
+                    val strAndCounter = formateLine(
+                        lines.first[numberOfLine].trim().replace("""^(\*|\d*\.) """.toRegex(), ""), counter
+                    )
+                    str += "<li>${strAndCounter.first}"
+                    counter = strAndCounter.second
                     if (lines.second[numberOfLine] < lines.second[numberOfLine + 1]) {
                         numberOfLine++
                         toList(if (lines.first[numberOfLine].trim()[0] == '*') "ul" else "ol")
@@ -662,7 +668,9 @@ fun markdownToHtml(inputName: String, outputName: String) {
             }
             toList(if (lines.first[numberOfLine].trim().startsWith('*')) "ul" else "ol")
         } else {
-            str += formateLine(lineNow)
+            val strAndCounter = formateLine(lineNow, counter)
+            str += strAndCounter.first
+            counter = strAndCounter.second
         }
         numberOfLine++
     }
