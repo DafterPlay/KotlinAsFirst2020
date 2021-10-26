@@ -408,8 +408,8 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun formateLine(i: String, counter: Triple<Int, Int, Int>): Pair<String, Triple<Int, Int, Int>> {
     var str = ""
-    var countI = counter.second
-    var countB = counter.first
+    var countI = counter.first
+    var countB = counter.second
     var countS = counter.third
     if (i.isEmpty()) {
         str += "</p><p>"
