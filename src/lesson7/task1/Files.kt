@@ -162,7 +162,7 @@ fun sibilants(inputName: String, outputName: String) {
 fun centerFile(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.maxOf { it.length }
+    val maxLen = textList.maxOfOrNull { it.length }?.toInt() ?: 0
     for (i in textList)
         writer.appendLine(i.padStart(i.length + (maxLen - i.length) / 2, ' '))
     writer.close()
@@ -471,8 +471,8 @@ fun formateLine(i: String, counter: Triple<Int, Int, Int>): Pair<String, Triple<
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     var file = File(inputName).readLines()
-    while (file[0].isEmpty()) file = file.subList(1, file.size)
-    while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
+    while (file[0].isEmpty() && file.isNotEmpty()) file = file.subList(1, file.size)
+    while (file.isNotEmpty() && file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
     var counter = Triple(0, 0, 0)
     for (i in file) {
         if (!(str.endsWith("</p><p>") && i.isBlank())) {
