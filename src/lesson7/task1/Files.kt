@@ -471,7 +471,7 @@ fun formateLine(i: String, counter: Triple<Int, Int, Int>): Pair<String, Triple<
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     var file = File(inputName).readLines()
-    while (file[0].isEmpty() && file.isNotEmpty()) file = file.subList(1, file.size)
+    while (file.isNotEmpty() && file[0].isEmpty()) file = file.subList(1, file.size)
     while (file.isNotEmpty() && file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
     var counter = Triple(0, 0, 0)
     for (i in file) {
