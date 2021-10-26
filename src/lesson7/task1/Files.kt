@@ -411,7 +411,7 @@ fun formateLine(i: String, counter: Triple<Int, Int, Int>): Pair<String, Triple<
     var countI = counter.first
     var countB = counter.second
     var countS = counter.third
-    if (i.isEmpty()) {
+    if (i.isBlank()) {
         str += "</p><p>"
         return Pair(str, Triple(countI, countB, countS))
     }
@@ -465,9 +465,6 @@ fun formateLine(i: String, counter: Triple<Int, Int, Int>): Pair<String, Triple<
     return Pair(str, Triple(countI, countB, countS))
 }
 
-// Ошибка возникает в следствии того, что при переносе на новую строку я обнуляю все значения, будь они
-// закрыты или открыты, однако видимо тест предпологает, что я должен все это учитывать
-// в условии этого нет, встает вопрос, правильное ли у меня решение или следует переделывать?
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var str = "<html><body><p>"
     var file = File(inputName).readLines()
@@ -475,9 +472,11 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     while (file[file.size - 1].isEmpty()) file = file.subList(0, file.size - 1)
     var counter = Triple(0, 0, 0)
     for (i in file) {
-        val strAndCounter = formateLine(i, counter)
-        str += strAndCounter.first
-        counter = strAndCounter.second
+        if (!(str.endsWith("</p><p>") && i.isBlank())) {
+            val strAndCounter = formateLine(i, counter)
+            str += strAndCounter.first
+            counter = strAndCounter.second
+        }
     }
     str += "</p></body></html>"
     val writer = File(outputName).bufferedWriter()
@@ -668,9 +667,11 @@ fun markdownToHtml(inputName: String, outputName: String) {
             }
             toList(if (lines.first[numberOfLine].trim().startsWith('*')) "ul" else "ol")
         } else {
-            val strAndCounter = formateLine(lineNow, counter)
-            str += strAndCounter.first
-            counter = strAndCounter.second
+            if (!(str.endsWith("</p><p>") && lineNow.isBlank())) {
+                val strAndCounter = formateLine(lineNow, counter)
+                str += strAndCounter.first
+                counter = strAndCounter.second
+            }
         }
         numberOfLine++
     }
