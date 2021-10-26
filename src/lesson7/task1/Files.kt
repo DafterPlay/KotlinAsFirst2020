@@ -162,7 +162,7 @@ fun sibilants(inputName: String, outputName: String) {
 fun centerFile(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.fold(0) { max, element -> if (max < element.length) element.length else max }
+    val maxLen = textList.maxOf { it.length }
     for (i in textList)
         writer.appendLine(i.padStart(i.length + (maxLen - i.length) / 2, ' '))
     writer.close()
@@ -246,6 +246,9 @@ fun top20Words(inputName: String): Map<String, Int> {
         val words = i.lowercase(Locale.getDefault()).split("""[^a-zа-я|ё]+""".toRegex())
         for (j in words.filter { it.isNotEmpty() }) {
             mapWords[j] = mapWords[j]?.plus(1) ?: 1
+            // Я попробовал, оно работает, но мне не сильно нравится такая реализация
+            // если вы конечно имели ввиду именно это:
+            //mapWords[j] = mapWords.getOrDefault(j, 0) + 1
         }
     }
     return when (mapWords.size < 20) {
