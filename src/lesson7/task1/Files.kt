@@ -198,7 +198,7 @@ fun centerFile(inputName: String, outputName: String) {
 fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.fold(0) { max, element -> if (max < element.length) element.length else max }
+    val maxLen = textList.maxOfOrNull { it.length }?.toInt() ?: 0
     val wordsInText = textList.map { (it.replace("""\s+""".toRegex(), " ")).split(' ') }
     for (i in wordsInText.indices) {
         if (wordsInText[i].size == 1) {
