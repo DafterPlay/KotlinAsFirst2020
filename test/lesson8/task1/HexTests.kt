@@ -12,6 +12,9 @@ class HexTests {
     @Tag("3")
     fun hexPointDistance() {
         assertEquals(5, HexPoint(6, 1).distance(HexPoint(1, 4)))
+        assertEquals(5, HexPoint(0, 5).distance(HexPoint(0, 0)))
+        assertEquals(5, HexPoint(5, 0).distance(HexPoint(0, 0)))
+        assertEquals(0, HexPoint(0, 0).distance(HexPoint(0, 0)))
     }
 
     @Test
@@ -46,6 +49,14 @@ class HexTests {
         assertEquals(DOWN_LEFT, HexSegment(HexPoint(3, 6), HexPoint(3, 1)).direction())
         assertEquals(UP_LEFT, HexSegment(HexPoint(4, 2), HexPoint(1, 5)).direction())
         assertEquals(INCORRECT, HexSegment(HexPoint(3, 1), HexPoint(6, 2)).direction())
+        // Мои тесты
+        assertEquals(RIGHT, HexSegment(HexPoint(4, 2), HexPoint(7, 2)).direction())
+        assertEquals(UP_RIGHT, HexSegment(HexPoint(4, 1), HexPoint(4, 5)).direction())
+        assertEquals(DOWN_RIGHT, HexSegment(HexPoint(3, 5), HexPoint(8, 0)).direction())
+        assertEquals(LEFT, HexSegment(HexPoint(4, 6), HexPoint(1, 6)).direction())
+        assertEquals(DOWN_LEFT, HexSegment(HexPoint(5, 3), HexPoint(5, 2)).direction())
+        assertEquals(UP_LEFT, HexSegment(HexPoint(6, 1), HexPoint(4, 3)).direction())
+        assertEquals(INCORRECT, HexSegment(HexPoint(7, 4), HexPoint(2, 2)).direction())
     }
 
     @Test
@@ -99,6 +110,7 @@ class HexTests {
         assertThrows(IllegalArgumentException::class.java) {
             HexPoint(0, 0).move(INCORRECT, 0)
         }
+        assertEquals(HexPoint(5, 5), HexPoint(5, 3).move(DOWN_LEFT, -2))
     }
 
     @Test
@@ -106,6 +118,24 @@ class HexTests {
     fun pathBetweenHexes() {
         assertEquals(
             5, pathBetweenHexes(HexPoint(y = 2, x = 2), HexPoint(y = 5, x = 3)).size
+        )
+        assertEquals(
+            3, pathBetweenHexes(HexPoint(y = 0, x = 0), HexPoint(y = 1, x = 1)).size
+        )
+        assertEquals(
+            3, pathBetweenHexes(HexPoint(y = 1, x = 1), HexPoint(y = 0, x = 0)).size
+        )
+        assertEquals(
+            5, pathBetweenHexes(HexPoint(y = 5, x = 3), HexPoint(y = 2, x = 2)).size
+        )
+        assertEquals(
+            4, pathBetweenHexes(HexPoint(y = 0, x = 0), HexPoint(y = 2, x = 1)).size
+        )
+        assertEquals(
+            9, pathBetweenHexes(HexPoint(y = 0, x = 0), HexPoint(y = 4, x = 4)).size
+        )
+        assertEquals(
+            6, pathBetweenHexes(HexPoint(y = 0, x = 0), HexPoint(y = 4, x = 1)).size
         )
     }
 

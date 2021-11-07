@@ -217,6 +217,7 @@ class Tests {
     fun bisectorByPoints() {
         assertApproxEquals(Line(Point(2.0, 0.0), PI / 2), bisectorByPoints(Point(0.0, 0.0), Point(4.0, 0.0)))
         assertApproxEquals(Line(Point(1.0, 2.0), 0.0), bisectorByPoints(Point(1.0, 5.0), Point(1.0, -1.0)))
+        assertApproxEquals(Line(Point(-1.0, 1.0), PI / 4), bisectorByPoints(Point(0.0, 0.0), Point(-2.0, 2.0)))
     }
 
     @Test
@@ -265,5 +266,9 @@ class Tests {
         for (p in listOf(a, b, c, d)) {
             assertTrue(result2.contains(p))
         }
+        // Проверка для 1 точки
+        val result3 = minContainingCircle(Point(2.0, 1.0))
+        assertEquals(0.0, result3.radius, 0.01)
+        assertTrue(result3.contains(Point(2.0, 1.0)))
     }
 }
