@@ -192,6 +192,16 @@ fun stepen(x: Int, n: Int): Int {
     return c
 }
 
+fun kolcif(x: Int): Int {
+    var f = x
+    var c = 0
+    while (f != 0) {
+        c++
+        f /= 10
+    }
+    return c
+}
+
 /**
  * Сложная (4 балла)
  *
@@ -207,11 +217,7 @@ fun squareSequenceDigit(n: Int): Int {
     while (count < n) {
         val k = ch * ch
         var c = k
-        var l = 0
-        while (c != 0) {
-            l++
-            c /= 10
-        }
+        var l = kolcif(c)
         if (l + count == n) {
             return k % 10
         }
@@ -250,11 +256,7 @@ fun fibSequenceDigit(n: Int): Int {
         ch3 += ch2
         ch2 = ch1
         var c = ch3
-        var l = 0
-        while (c != 0) {
-            l++
-            c /= 10
-        }
+        var l = kolcif(c)
         if (l + count == n) {
             return ch3 % 10
         }
