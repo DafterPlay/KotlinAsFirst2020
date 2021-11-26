@@ -2,7 +2,7 @@
 
 package lesson8.task2
 
-import lesson4.task1.sqRoots
+import lesson8.task3.Graph
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -31,6 +31,9 @@ data class Square(val column: Int, val row: Int) {
     fun isCorrect(): Square = if (inside()) this else throw IllegalArgumentException()
 
     override fun equals(other: Any?) = other is Square && column == other.column && row == other.row
+
+    override fun toString(): String = "$column$row"
+    operator fun plus(other: Square): Square = Square(column + other.column, row + other.row)
 }
 
 /**
@@ -233,7 +236,32 @@ fun kingTrajectory(start: Square, end: Square): List<Square> {
  * Пример: knightMoveNumber(Square(3, 1), Square(6, 3)) = 3.
  * Конь может последовательно пройти через клетки (5, 2) и (4, 4) к клетке (6, 3).
  */
-fun knightMoveNumber(start: Square, end: Square): Int = TODO()
+fun createGraph(): Graph {
+    val graph = Graph()
+    for (i in 1..8) for (j in 1..8) graph.addVertex("$i$j")
+    for (i in 1..8) for (j in 1..8) {
+        val square = Square(i, j)
+        var nextSquare = square + Square(-1, -2)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(-2, -1)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(1, 2)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(2, 1)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(1, -2)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(2, -1)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(-1, 2)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+        nextSquare = square + Square(-2, 1)
+        if (nextSquare.inside()) graph.connect(square.toString(), nextSquare.toString())
+    }
+    return graph
+}
+
+fun knightMoveNumber(start: Square, end: Square): Int = createGraph().bfs(start.toString(), end.toString())
 
 /**
  * Очень сложная (10 баллов)
@@ -255,4 +283,6 @@ fun knightMoveNumber(start: Square, end: Square): Int = TODO()
  *
  * Если возможно несколько вариантов самой быстрой траектории, вернуть любой из них.
  */
-fun knightTrajectory(start: Square, end: Square): List<Square> = TODO()
+fun knightTrajectory(start: Square, end: Square): List<Square> =
+    createGraph().bfsWithElements(start.toString(), end.toString())
+        .map { Square(it[0].code - '0'.code, it[1].code - '0'.code) }

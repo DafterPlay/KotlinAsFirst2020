@@ -137,11 +137,21 @@ class HexTests {
         assertEquals(
             6, pathBetweenHexes(HexPoint(y = 0, x = 0), HexPoint(y = 4, x = 1)).size
         )
+        assertEquals(
+            1, pathBetweenHexes(HexPoint(y = 0, x = 0), HexPoint(y = 0, x = 0)).size
+        )
     }
 
     @Test
     @Tag("20")
     fun hexagonByThreePoints() {
+        assertEquals(
+            Hexagon(HexPoint(5, 2), 4),
+            hexagonByThreePoints(HexPoint(1, 2), HexPoint(9, 0), HexPoint(3, 6))
+        )
+        assertNull(
+            hexagonByThreePoints(HexPoint(1, 2), HexPoint(8, 0), HexPoint(3, 6))
+        )
         assertEquals(
             Hexagon(HexPoint(4, 2), 2),
             hexagonByThreePoints(HexPoint(3, 1), HexPoint(2, 3), HexPoint(4, 4))
@@ -152,6 +162,14 @@ class HexTests {
         assertEquals(
             3,
             hexagonByThreePoints(HexPoint(2, 3), HexPoint(3, 3), HexPoint(5, 3))?.radius
+        )
+        assertEquals(
+            Hexagon(HexPoint(0, 0), 0),
+            hexagonByThreePoints(HexPoint(0, 0), HexPoint(0, 0), HexPoint(0, 0))
+        )
+        // Проверка, что в теории он не очень долго будет считать
+        assertNull(
+            hexagonByThreePoints(HexPoint(200000, 3), HexPoint(3000000, 300000), HexPoint(50000, 300000))?.radius
         )
     }
 
@@ -164,4 +182,35 @@ class HexTests {
         assertTrue(points.all { result.contains(it) })
     }
 
+    @Test
+    fun radiusBoundary() {
+        assertEquals(
+            listOf<HexPoint>(),
+            listOf(
+                HexPoint(6, 4),
+                HexPoint(5, 4),
+                HexPoint(5, 3),
+                HexPoint(6, 2),
+                HexPoint(7, 2),
+                HexPoint(7, 3)
+            ) - (Hexagon(HexPoint(6, 3), 1).radiusBoundary())
+        )
+        assertEquals(
+            listOf<HexPoint>(),
+            listOf(
+                HexPoint(6, 5),
+                HexPoint(5, 5),
+                HexPoint(4, 5),
+                HexPoint(4, 4),
+                HexPoint(4, 3),
+                HexPoint(5, 2),
+                HexPoint(6, 1),
+                HexPoint(7, 1),
+                HexPoint(8, 1),
+                HexPoint(8, 2),
+                HexPoint(8, 3),
+                HexPoint(7, 4)
+            ) - (Hexagon(HexPoint(6, 3), 2).radiusBoundary())
+        )
+    }
 }

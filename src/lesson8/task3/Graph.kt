@@ -49,6 +49,25 @@ class Graph {
         return -1
     }
 
+    fun bfsWithElements(start: String, finish: String) = bfsWithElements(this[start], this[finish])
+
+    private fun bfsWithElements(start: Vertex, finish: Vertex): List<String> {
+        val queue = ArrayDeque<Vertex>()
+        queue.add(start)
+        val visited = mutableMapOf(start to Pair(0, mutableListOf(start.name)))
+        while (queue.isNotEmpty()) {
+            val next = queue.poll()
+            val distance = visited[next]!!.first
+            if (next == finish) return visited[next]!!.second
+            for (neighbor in next.neighbors) {
+                if (neighbor in visited) continue
+                visited[neighbor] = Pair(distance + 1, (visited[next]!!.second + neighbor.name).toMutableList())
+                queue.add(neighbor)
+            }
+        }
+        return listOf()
+    }
+
     /**
      * Пример
      *
