@@ -43,8 +43,10 @@ data class Square(val column: Int, val row: Int) {
  * В нотации, колонки обозначаются латинскими буквами от a до h, а ряды -- цифрами от 1 до 8.
  * Если нотация некорректна, бросить IllegalArgumentException
  */
-fun square(notation: String): Square =
-    Square(notation[0].code - 'a'.code + 1, notation[1].code - '0'.code).isCorrect()
+fun square(notation: String): Square = when (notation.length == 2) {
+    true -> Square(notation[0].code - 'a'.code + 1, notation[1].code - '0'.code).isCorrect()
+    else -> throw IllegalArgumentException()
+}
 
 /**
  * Простая (2 балла)
@@ -145,19 +147,15 @@ fun bishopMoveNumber(start: Square, end: Square): Int = when {
  * Если возможно несколько вариантов самой быстрой траектории, вернуть любой из них.
  */
 fun bishopTrajectory(start: Square, end: Square): List<Square> = when (bishopMoveNumber(start, end)) {
+    -1 -> listOf()
     0 -> listOf(start)
     1 -> listOf(start, end)
-    -1 -> listOf()
     else -> {
-        val num = (end.column + end.row - start.row - start.column) / 2
-        listOf(
-            start,
-            Square(
-                start.column + if ((start.column + num) in 1..8) num else -num,
-                start.row + if ((start.row + num) in 1..8) num else -num
-            ),
-            end
-        )
+        val num1 = (end.row + end.column - start.row - start.column) / 2
+        val num2 = (end.row - end.column - start.row + start.column) / 2
+        var square = Square(start.column + num1, start.row + num1)
+        if (!square.inside()) square = Square(start.column - num2, start.row + num2)
+        listOf(start, square, end)
     }
 }
 
