@@ -122,6 +122,7 @@ class HexSegment(val begin: HexPoint, val end: HexPoint) {
      * для "неправильного" -- INCORRECT.
      */
     fun direction(): Direction = when {
+        begin == end -> Direction.INCORRECT
         begin.y == end.y -> when {
             begin.x - end.x < 0 -> Direction.RIGHT
             else -> Direction.LEFT

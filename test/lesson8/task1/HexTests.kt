@@ -64,6 +64,15 @@ class HexTests {
         assertEquals(DOWN_LEFT, HexSegment(HexPoint(5, 3), HexPoint(5, 2)).direction())
         assertEquals(UP_LEFT, HexSegment(HexPoint(6, 1), HexPoint(4, 3)).direction())
         assertEquals(INCORRECT, HexSegment(HexPoint(7, 4), HexPoint(2, 2)).direction())
+        // Дополнительные тесты, с учетом наличия отрицательных чисел
+        assertEquals(LEFT, HexSegment(HexPoint(0, -1), HexPoint(-1, -1)).direction())
+        assertEquals(RIGHT, HexSegment(HexPoint(0, -1), HexPoint(1, -1)).direction())
+        assertEquals(LEFT, HexSegment(HexPoint(-2, -1), HexPoint(-5, -1)).direction())
+        assertEquals(DOWN_RIGHT, HexSegment(HexPoint(2, -1), HexPoint(3, -2)).direction())
+        assertEquals(DOWN_RIGHT, HexSegment(HexPoint(0, 1), HexPoint(3, -2)).direction())
+        assertEquals(DOWN_LEFT, HexSegment(HexPoint(0, 7), HexPoint(0, -22)).direction())
+        // Тесты из котоеда
+        assertEquals(INCORRECT, HexSegment(HexPoint(-1000, -557), HexPoint(-1000, -557)).direction())
     }
 
     @Test
