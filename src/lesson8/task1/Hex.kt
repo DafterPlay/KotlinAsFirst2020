@@ -63,7 +63,13 @@ data class Hexagon(val center: HexPoint, val radius: Int) {
      * и другим шестиугольником B с центром в 26 и радиуоом 2 равно 2
      * (расстояние между точками 32 и 24)
      */
-    fun distance(other: Hexagon): Int = center.distance(other.center) - radius - other.radius
+    fun distance(other: Hexagon): Int {
+        val num = center.distance(other.center) - abs(radius) - abs(other.radius)
+        return when {
+            num < 0 -> 0
+            else -> num
+        }
+    }
 
     /**
      * Тривиальная (1 балл)
@@ -106,7 +112,7 @@ class HexSegment(val begin: HexPoint, val end: HexPoint) {
      * А, например, 13-26 не является "правильным" отрезком.
      */
     fun isValid(): Boolean = begin != end && (begin.y == end.y || begin.x == end.x ||
-            begin.x - abs(begin.y - end.y) == end.x || begin.x + abs(begin.y - end.y) == end.x)
+            begin.y - end.y == -(begin.x - end.x))
 
     /**
      * Средняя (3 балла)
@@ -267,9 +273,10 @@ fun hexagonByThreePoints(a: HexPoint, b: HexPoint, c: HexPoint): Hexagon? {
     ) {
         while (intersection.isEmpty() && radius != maxDistance) {
             radius++
-            intersection = Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
-                Hexagon(c, radius).radiusBoundary()
-            )
+            intersection =
+                Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
+                    Hexagon(c, radius).radiusBoundary()
+                )
         }
     }
     return if (intersection.isEmpty()) null else Hexagon(intersection.first(), radius)

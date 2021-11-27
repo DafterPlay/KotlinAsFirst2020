@@ -21,6 +21,8 @@ class HexTests {
     @Tag("3")
     fun hexagonDistance() {
         assertEquals(2, Hexagon(HexPoint(1, 3), 1).distance(Hexagon(HexPoint(6, 2), 2)))
+        assertEquals(0, Hexagon(HexPoint(-999, -237), 310).distance(Hexagon(HexPoint(-558, -999), 876)))
+        assertEquals(0, Hexagon(HexPoint(0, 0), 310).distance(Hexagon(HexPoint(1, 1), 876)))
     }
 
     @Test
@@ -37,6 +39,7 @@ class HexTests {
         assertTrue(HexSegment(HexPoint(3, 1), HexPoint(3, 6)).isValid())
         assertTrue(HexSegment(HexPoint(1, 5), HexPoint(4, 2)).isValid())
         assertFalse(HexSegment(HexPoint(3, 1), HexPoint(6, 2)).isValid())
+        assertFalse(HexSegment(HexPoint(5, 0), HexPoint(6, 1)).isValid())
         // Нулевой отрезок параллелен ничему
         assertFalse(HexSegment(HexPoint(1, 1), HexPoint(1, 1)).isValid())
         assertFalse(HexSegment(HexPoint(-999, -999), HexPoint(-999, -999)).isValid())

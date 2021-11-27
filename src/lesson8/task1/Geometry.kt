@@ -184,8 +184,8 @@ class Line private constructor(val b: Double, val angle: Double) {
 }
 
 fun angleX(a: Point, b: Point): Double = when {
-    (b.y - a.y) / (b.x - a.x) < 0 -> PI - acos(((abs(a.x - b.x)) / a.distance(b)))
-    else -> acos(((abs(a.x - b.x)) / a.distance(b)))
+    (b.y - a.y) / (b.x - a.x) < 0 -> PI - acos(((abs(a.x - b.x)) / a.distance(b)) % PI)
+    else -> acos(((abs(a.x - b.x)) / a.distance(b)) % PI)
 }
 
 /**
@@ -271,7 +271,7 @@ fun makeCircleOnePoint(points: List<Point>, p: Point): Circle {
             c = if (c.radius == 0.0)
                 makeDiameter(p, q)
             else
-                makeCircleTwoPoints(points.subList(0, i + 1), p, q);
+                makeCircleTwoPoints(points.subList(0, i + 1), p, q)
         }
     }
     return c
@@ -286,11 +286,11 @@ fun makeCircleTwoPoints(points: List<Point>, p: Point, q: Point): Circle {
         if (circ.contains(r)) continue
         val cross = pq.cross(r.subtract(p))
         val c = makeCircumcircle(p, q, r)
-        if (c == null) continue;
+        if (c == null) continue
         else if (cross > 0 && (left == null || pq.cross(c.center.subtract(p)) > pq.cross(left.center.subtract(p))))
-            left = c;
+            left = c
         else if (cross < 0 && (right == null || pq.cross(c.center.subtract(p)) < pq.cross(right.center.subtract(p))))
-            right = c;
+            right = c
     }
     return when {
         left == null && right == null -> circ
