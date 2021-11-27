@@ -71,8 +71,10 @@ class HexTests {
         assertEquals(DOWN_RIGHT, HexSegment(HexPoint(2, -1), HexPoint(3, -2)).direction())
         assertEquals(DOWN_RIGHT, HexSegment(HexPoint(0, 1), HexPoint(3, -2)).direction())
         assertEquals(DOWN_LEFT, HexSegment(HexPoint(0, 7), HexPoint(0, -22)).direction())
+        assertEquals(DOWN_RIGHT, HexSegment(HexPoint(-1, 0), HexPoint(0, -1)).direction())
         // Тесты из котоеда
         assertEquals(INCORRECT, HexSegment(HexPoint(-1000, -557), HexPoint(-1000, -557)).direction())
+        assertEquals(INCORRECT, HexSegment(HexPoint(-999, -999), HexPoint(-558, -558)).direction())
     }
 
     @Test

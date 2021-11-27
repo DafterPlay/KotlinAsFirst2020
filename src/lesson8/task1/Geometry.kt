@@ -184,8 +184,8 @@ class Line private constructor(val b: Double, val angle: Double) {
 }
 
 fun angleX(a: Point, b: Point): Double = when {
-    (b.y - a.y) / (b.x - a.x) < 0 -> PI - acos(((abs(a.x - b.x)) / a.distance(b)) % PI)
-    else -> acos(((abs(a.x - b.x)) / a.distance(b)) % PI)
+    (b.y - a.y) / (b.x - a.x) < 0 -> (PI - acos(((abs(a.x - b.x)) / a.distance(b)) % PI)) % PI
+    else -> acos(((abs(a.x - b.x)) / a.distance(b)) % PI) % PI
 }
 
 /**

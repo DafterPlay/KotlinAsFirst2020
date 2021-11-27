@@ -131,8 +131,10 @@ class HexSegment(val begin: HexPoint, val end: HexPoint) {
             begin.y - end.y < 0 -> Direction.UP_RIGHT
             else -> Direction.DOWN_LEFT
         }
-        begin.x == end.x - abs(begin.y - end.y) -> Direction.DOWN_RIGHT
-        begin.x == end.x + abs(begin.y - end.y) -> Direction.UP_LEFT
+        begin.x + begin.y == end.x + end.y -> when (begin.y > end.y) {
+            true -> Direction.DOWN_RIGHT
+            else -> Direction.UP_LEFT
+        }
         else -> Direction.INCORRECT
     }
 
