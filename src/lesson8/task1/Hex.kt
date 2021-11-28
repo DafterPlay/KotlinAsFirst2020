@@ -274,8 +274,7 @@ fun hexagonByThreePoints(a: HexPoint, b: HexPoint, c: HexPoint): Hexagon? {
         radius++
         intersection =
             Hexagon(maxDistance.second.first, radius).radiusBoundary()
-                .intersect(Hexagon(maxDistance.second.second, radius).radiusBoundary())
-                .filter { it.distance(lastHex) == radius }
+                .filter { it.distance(lastHex) == radius && it.distance(maxDistance.second.second) == radius }
     }
     return if (intersection.isEmpty()) null else Hexagon(intersection.first(), radius)
 }
