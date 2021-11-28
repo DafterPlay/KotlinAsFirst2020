@@ -269,19 +269,20 @@ fun hexagonByThreePoints(a: HexPoint, b: HexPoint, c: HexPoint): Hexagon? {
     var intersection = Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
         Hexagon(c, radius).radiusBoundary()
     )
-    // Пока не найдем точку пересечения или не достигнем максимального расстояния между центрами
+    /*
     if (Hexagon(a, maxDistance).radiusBoundary().intersect(Hexagon(b, maxDistance).radiusBoundary()).intersect(
             Hexagon(c, maxDistance).radiusBoundary()
         ).isNotEmpty()
-    ) {
-        while (intersection.isEmpty() && radius != maxDistance) {
-            radius++
-            intersection =
-                Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
-                    Hexagon(c, radius).radiusBoundary()
-                )
-        }
+    ) {*/
+    // Пока не найдем точку пересечения или не достигнем максимального расстояния между центрами
+    while (intersection.isEmpty() && radius != maxDistance) {
+        radius++
+        intersection =
+            Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
+                Hexagon(c, radius).radiusBoundary()
+            )
     }
+    //}
     return if (intersection.isEmpty()) null else Hexagon(intersection.first(), radius)
 }
 
