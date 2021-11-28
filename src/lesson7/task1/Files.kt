@@ -67,14 +67,14 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  * Подчёркивание в середине и/или в конце строк значения не имеет.
  */
 fun deleteMarked(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    File(inputName).forEachLine { i ->
-        if (i.isEmpty()) writer.newLine()
-        else if (i[0] != '_') {
-            writer.appendLine(i)
+    File(outputName).bufferedWriter().use { writer ->
+        File(inputName).forEachLine { i ->
+            if (i.isEmpty()) writer.newLine()
+            else if (i[0] != '_') {
+                writer.appendLine(i)
+            }
         }
     }
-    writer.close()
 }
 
 /**
@@ -100,17 +100,34 @@ fun countOf(line: String, findLine: String): Int {
 
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
-    val textList = File(inputName).readLines().map { it.lowercase() }
+    // Создана с целью не переводить в нижний регистр по сто раз, но понимать, какое слово было изначально
+    val substringsLowerMap = mutableMapOf<String, String>()
+    for (i in substrings) substringsLowerMap[i.lowercase(Locale.getDefault())] = i
+    File(inputName).forEachLine { line ->
+        val lineLower = line.lowercase(Locale.getDefault())
+        for (i in substringsLowerMap.keys) {
+            map[substringsLowerMap[i]!!] =
+                map[substringsLowerMap[i]!!]?.plus(countOf(lineLower, i)) ?: countOf(lineLower, i)
+        }
+    }
+    return map
+}
+
+/*
+fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
+    val map = mutableMapOf<String, Int>()
+    val textList = File(inputName).readLines().map { it.lowercase(Locale.getDefault()) }
     for (i in substrings) {
         var count = 0
+        val substringLower = i.lowercase(Locale.getDefault())
         for (j in textList) {
-            count += countOf(j, i.lowercase(Locale.getDefault()))
+            count += countOf(j, substringLower)
         }
         map[i] = count
     }
     return map
 }
-
+*/
 
 /**
  * Средняя (12 баллов)
@@ -126,20 +143,22 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    for (i in File(inputName).readLines())
-        writer.appendLine(i.replace("[ЧчЩщЖжШш][ЯяЮюЫы]".toRegex(), transform = {
-            when (it.value[1]) {
-                'ы' -> "${it.value[0]}и"
-                'Ы' -> "${it.value[0]}И"
-                'я' -> "${it.value[0]}а"
-                'Я' -> "${it.value[0]}А"
-                'ю' -> "${it.value[0]}у"
-                'Ю' -> "${it.value[0]}У"
-                else -> "$it"
-            }
-        }))
-    writer.close()
+    val regex = "[ЧчЩщЖжШш][ЯяЮюЫы]".toRegex()
+    File(outputName).bufferedWriter().use { writer ->
+        File(inputName).forEachLine { i ->
+            writer.appendLine(i.replace(regex, transform = {
+                it.value[0] + when (it.value[1]) {
+                    'ы' -> "и"
+                    'Ы' -> "И"
+                    'я' -> "а"
+                    'Я' -> "А"
+                    'ю' -> "у"
+                    'Ю' -> "У"
+                    else -> it.value[1].toString()
+                }
+            }))
+        }
+    }
 }
 
 /**
@@ -160,12 +179,12 @@ fun sibilants(inputName: String, outputName: String) {
  *
  */
 fun centerFile(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.maxOfOrNull { it.length }?.toInt() ?: 0
-    for (i in textList)
-        writer.appendLine(i.padStart(i.length + (maxLen - i.length) / 2, ' '))
-    writer.close()
+    val maxLen = textList.maxOf { it.length }
+    File(outputName).bufferedWriter().use { writer ->
+        for (i in textList)
+            writer.appendLine(i.padStart(i.length + (maxLen - i.length) / 2, ' '))
+    }
 }
 
 /**
@@ -198,8 +217,8 @@ fun centerFile(inputName: String, outputName: String) {
 fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.maxOfOrNull { it.length }?.toInt() ?: 0
-    val wordsInText = textList.map { (it.replace("""\s+""".toRegex(), " ")).split(' ') }
+    val maxLen = textList.maxOf { it.length }
+    val wordsInText = textList.map { it.replace("""\s+""".toRegex(), " ").split(' ') }
     for (i in wordsInText.indices) {
         if (wordsInText[i].size == 1) {
             writer.appendLine(textList[i])
@@ -207,11 +226,12 @@ fun alignFileByWidth(inputName: String, outputName: String) {
         }
         val needSpaces = maxLen - wordsInText[i].fold("") { line, add -> line + add }.length
         var remainingSpaces = needSpaces % (wordsInText[i].size - 1)
+        val spacesBetween = needSpaces / (wordsInText[i].size - 1)
         writer.appendLine(
             wordsInText[i].fold("") { line, add ->
                 remainingSpaces -= 1
                 line + add + buildString {
-                    for (a in (if (remainingSpaces + 1 > 0) 0 else 1)..needSpaces / (wordsInText[i].size - 1))
+                    for (a in (if (remainingSpaces >= 0) 0 else 1)..spacesBetween)
                         append(' ')
                 }
             }.trim()
@@ -242,17 +262,15 @@ fun alignFileByWidth(inputName: String, outputName: String) {
  */
 fun top20Words(inputName: String): Map<String, Int> {
     val mapWords = mutableMapOf<String, Int>()
-    for (i in File(inputName).readLines()) {
-        val words = i.lowercase(Locale.getDefault()).split("""[^a-zа-я|ё]+""".toRegex())
+    val regex = """[^a-zа-я|ё]+""".toRegex()
+    File(inputName).forEachLine { i ->
+        val words = i.lowercase(Locale.getDefault()).split(regex)
         for (j in words.filter { it.isNotEmpty() }) {
-            mapWords[j] = mapWords[j]?.plus(1) ?: 1
-            // Я попробовал, оно работает, но мне не сильно нравится такая реализация
-            // если вы конечно имели ввиду именно это:
-            //mapWords[j] = mapWords.getOrDefault(j, 0) + 1
+            mapWords[j] = (mapWords[j] ?: 0) + 1
         }
     }
-    return when (mapWords.size < 20) {
-        true -> mapWords
+    return when {
+        mapWords.size < 20 -> mapWords
         else -> {
             val maxValue = mapWords.map { newIt -> newIt.value }.sorted()
             mapWords.filter { it.value >= maxValue[maxValue.size - 20] }
@@ -297,27 +315,27 @@ fun top20Words(inputName: String): Map<String, Int> {
  */
 
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
     val lowerDictionary = dictionary.map {
         Pair(
             it.key.lowercaseChar(),
             it.value.lowercase(Locale.getDefault())
         )
     }.toMap()
-    for (i in File(inputName).readLines()) {
-        writer.appendLine(
-            i.fold("") { last, it ->
-                last + when (it.lowercaseChar() in lowerDictionary) {
-                    true -> when (!it.isLowerCase() && it.isLetter()) {
-                        true -> lowerDictionary[it.lowercaseChar()]?.replaceFirstChar { it.uppercaseChar() }
-                        else -> lowerDictionary[it.lowercaseChar()]
+    File(outputName).bufferedWriter().use { writer ->
+        File(inputName).forEachLine { i ->
+            writer.appendLine(
+                i.fold("") { last, it ->
+                    last + when (it.lowercaseChar() in lowerDictionary) {
+                        true -> when (!it.isLowerCase() && it.isLetter()) {
+                            true -> lowerDictionary[it.lowercaseChar()]?.replaceFirstChar { it.uppercaseChar() }
+                            else -> lowerDictionary[it.lowercaseChar()]
+                        }
+                        else -> it
                     }
-                    else -> it
                 }
-            }
-        )
+            )
+        }
     }
-    writer.close()
 }
 
 /**
@@ -356,12 +374,9 @@ fun checkUniqueness(str: String): Boolean {
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
     val uniquenessWords =
         File(inputName).readLines().filter { checkUniqueness(it.lowercase(Locale.getDefault())) }
-    val writer = File(outputName).bufferedWriter()
-    if (uniquenessWords.isNotEmpty()) {
-        val maxSize = uniquenessWords.map { it.length }.maxOrNull()
-        writer.appendLine(uniquenessWords.filter { it.length == maxSize }.joinToString())
-    }
-    writer.close()
+    val maxSize = uniquenessWords.map { it.length }.maxOrNull()
+    File(outputName).bufferedWriter()
+        .use { writer -> writer.appendLine(uniquenessWords.filter { it.length == maxSize }.joinToString()) }
 }
 
 /**
@@ -596,7 +611,8 @@ fun countSpacesInStart(str: String): Int {
 
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     var str = "<html><body><p>"
-    val lines = Pair(File(inputName).readLines() + "", File(inputName).readLines().map { countSpacesInStart(it) } + -1)
+    val lines =
+        Pair(File(inputName).readLines() + "", File(inputName).readLines().map { countSpacesInStart(it) } + -1)
     var numberOfLine = 0
     fun toList(prefix: String) {
         str += "<$prefix>"
@@ -836,7 +852,10 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
                         "-${result[counterOfResult] * rhv}"
             )
             indent =
-                max(lastNum.len, integerPart.len + 1) + indent - max((result[counterOfResult] * rhv).len, remains.len)
+                max(lastNum.len, integerPart.len + 1) + indent - max(
+                    (result[counterOfResult] * rhv).len,
+                    remains.len
+                )
             lastNum = "$remains$i".toInt()
         }
         writer.appendLine(

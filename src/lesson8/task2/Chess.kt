@@ -28,7 +28,7 @@ data class Square(val column: Int, val row: Int) {
      */
     fun notation(): String = if (inside()) "${"abcdefgh"[column - 1]}$row" else ""
 
-    fun isCorrect(): Square = if (inside()) this else throw IllegalArgumentException()
+    fun ensureCorrect(): Square = if (inside()) this else throw IllegalArgumentException()
 
     override fun equals(other: Any?) = other is Square && column == other.column && row == other.row
 
@@ -43,8 +43,8 @@ data class Square(val column: Int, val row: Int) {
  * В нотации, колонки обозначаются латинскими буквами от a до h, а ряды -- цифрами от 1 до 8.
  * Если нотация некорректна, бросить IllegalArgumentException
  */
-fun square(notation: String): Square = when (notation.length == 2) {
-    true -> Square(notation[0].code - 'a'.code + 1, notation[1].code - '0'.code).isCorrect()
+fun square(notation: String): Square = when (notation.length) {
+    2 -> Square(notation[0].code - 'a'.code + 1, notation[1].digitToInt()).ensureCorrect()
     else -> throw IllegalArgumentException()
 }
 
@@ -72,7 +72,7 @@ fun square(notation: String): Square = when (notation.length == 2) {
  * Ладья может пройти через клетку (3, 3) или через клетку (6, 1) к клетке (6, 3).
  */
 fun rookMoveNumber(start: Square, end: Square): Int = when {
-    start.isCorrect() == end.isCorrect() -> 0
+    start.ensureCorrect() == end.ensureCorrect() -> 0
     start.row == end.row || start.column == end.column -> 1
     else -> 2
 }
@@ -121,7 +121,7 @@ fun rookTrajectory(start: Square, end: Square): List<Square> = when (rookMoveNum
  * Слон может пройти через клетку (6, 4) к клетке (3, 7).
  */
 fun bishopMoveNumber(start: Square, end: Square): Int = when {
-    start.isCorrect() == end.isCorrect() -> 0
+    start.ensureCorrect() == end.ensureCorrect() -> 0
     (start.row % 2 != end.row % 2 || start.column % 2 != end.column % 2) &&
             !(start.column % 2 != end.column % 2 && start.row % 2 != end.row % 2) -> -1
     abs(start.row - end.row) - abs(start.column - end.column) == 0 -> 1
@@ -180,7 +180,7 @@ fun bishopTrajectory(start: Square, end: Square): List<Square> = when (bishopMov
  * Король может последовательно пройти через клетки (4, 2) и (5, 2) к клетке (6, 3).
  */
 fun kingMoveNumber(start: Square, end: Square): Int = when {
-    start.isCorrect() == end.isCorrect() -> 0
+    start.ensureCorrect() == end.ensureCorrect() -> 0
     else -> max(abs(start.column - end.column), abs(start.row - end.row))
 }
 
@@ -283,4 +283,4 @@ fun knightMoveNumber(start: Square, end: Square): Int = createGraph().bfs(start.
  */
 fun knightTrajectory(start: Square, end: Square): List<Square> =
     createGraph().bfsWithElements(start.toString(), end.toString())
-        .map { Square(it[0].code - '0'.code, it[1].code - '0'.code) }
+        .map { Square(it[0].digitToInt(), it[1].digitToInt()) }
