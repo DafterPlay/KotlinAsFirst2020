@@ -97,7 +97,9 @@ fun countOf(line: String, findLine: String): Int {
     }
     return counter
 }
-
+/*
+// Решение номер 2, оно сделано так, как вы скорее всего хотели, но работает оно медленне, я получил таймлимит
+// Напишите, что я делаю не так
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
     // Создана с целью не переводить в нижний регистр по сто раз, но понимать, какое слово было изначально
@@ -112,8 +114,8 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     }
     return map
 }
+*/
 
-/*
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
     val textList = File(inputName).readLines().map { it.lowercase(Locale.getDefault()) }
@@ -127,7 +129,6 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     }
     return map
 }
-*/
 
 /**
  * Средняя (12 баллов)
