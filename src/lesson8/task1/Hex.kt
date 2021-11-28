@@ -4,6 +4,7 @@ package lesson8.task1
 
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -82,20 +83,17 @@ data class Hexagon(val center: HexPoint, val radius: Int) {
      * Возвращает точки, находящиеся на растоянии радиуса от центра
      */
     fun radiusBoundary(): List<HexPoint> {
-        val answer = mutableSetOf<HexPoint>()
-        var hexPoint = HexPoint(center.x + radius, center.y)
-        answer.addAll(pathBetweenHexes(hexPoint, hexPoint.copy(y = hexPoint.y - radius)))
-        hexPoint = hexPoint.copy(y = hexPoint.y - radius)
-        answer.addAll(pathBetweenHexes(hexPoint, hexPoint.copy(x = hexPoint.x - radius)))
-        hexPoint = hexPoint.copy(x = hexPoint.x - radius)
-        answer.addAll(pathBetweenHexes(hexPoint, hexPoint.copy(x = hexPoint.x - radius, y = hexPoint.y + radius)))
-        hexPoint = hexPoint.copy(x = hexPoint.x - radius, y = hexPoint.y + radius)
-        answer.addAll(pathBetweenHexes(hexPoint, hexPoint.copy(y = hexPoint.y + radius)))
-        hexPoint = hexPoint.copy(y = hexPoint.y + radius)
-        answer.addAll(pathBetweenHexes(hexPoint, hexPoint.copy(x = hexPoint.x + radius)))
-        hexPoint = hexPoint.copy(x = hexPoint.x + radius)
-        answer.addAll(pathBetweenHexes(hexPoint, hexPoint.copy(x = hexPoint.x + radius, y = hexPoint.y - radius)))
-        return answer.toList()
+        val answer = mutableListOf<HexPoint>()
+        var hexPoint = HexPoint(center.x, center.y + radius)
+        var direction = Direction.LEFT
+        do {
+            for (i in 0 until radius) {
+                answer.add(hexPoint.move(direction, i))
+            }
+            hexPoint = hexPoint.move(direction, radius)
+            direction = direction.next()
+        } while (direction != Direction.LEFT)
+        return answer
     }
 }
 
@@ -262,27 +260,23 @@ fun pathBetweenHexes(from: HexPoint, to: HexPoint): List<HexPoint> {
  */
 
 fun hexagonByThreePoints(a: HexPoint, b: HexPoint, c: HexPoint): Hexagon? {
-    val maxDistance = max(a.distance(b), max(a.distance(c), c.distance(b)))
+    if (a == b && b == c) return Hexagon(a, 0)
+    val maxDistance = maxDistance(listOf(a, b, c))
+    val lastHex = (listOf(a, b, c) - maxDistance.second.first - maxDistance.second.second).first()
     // Радиус, при котором все шестиугольники пересеклись
-    var radius = (maxDistance + 1) / 2
+    var radius = (maxDistance.first + 1) / 2
     // Лист с точками, в которых пересекаются все границы
     var intersection = Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
         Hexagon(c, radius).radiusBoundary()
-    )
-    /*
-    if (Hexagon(a, maxDistance).radiusBoundary().intersect(Hexagon(b, maxDistance).radiusBoundary()).intersect(
-            Hexagon(c, maxDistance).radiusBoundary()
-        ).isNotEmpty()
-    ) {*/
+    ).toList()
     // Пока не найдем точку пересечения или не достигнем максимального расстояния между центрами
-    while (intersection.isEmpty() && radius != maxDistance) {
+    while (intersection.isEmpty() && radius != maxDistance.first) {
         radius++
         intersection =
-            Hexagon(a, radius).radiusBoundary().intersect(Hexagon(b, radius).radiusBoundary()).intersect(
-                Hexagon(c, radius).radiusBoundary()
-            )
+            Hexagon(maxDistance.second.first, radius).radiusBoundary()
+                .intersect(Hexagon(maxDistance.second.second, radius).radiusBoundary())
+                .filter { it.distance(lastHex) == radius }
     }
-    //}
     return if (intersection.isEmpty()) null else Hexagon(intersection.first(), radius)
 }
 

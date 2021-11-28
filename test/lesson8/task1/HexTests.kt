@@ -187,7 +187,11 @@ class HexTests {
         )
         // Проверка, что в теории он не очень долго будет считать
         assertNull(
-            hexagonByThreePoints(HexPoint(200000, 3), HexPoint(3000000, 300000), HexPoint(50000, 300000))?.radius
+            hexagonByThreePoints(HexPoint(2000, 3), HexPoint(3000, 3000), HexPoint(5000, 3009))
+        )
+        assertEquals(
+            Hexagon(HexPoint(5000, 0), 3000),
+            hexagonByThreePoints(HexPoint(2000, 3), HexPoint(3000, 3000), HexPoint(5000, 3000))
         )
     }
 
@@ -229,6 +233,10 @@ class HexTests {
                 HexPoint(8, 3),
                 HexPoint(7, 4)
             ) - (Hexagon(HexPoint(6, 3), 2).radiusBoundary())
+        )
+        assertEquals(
+            54,
+            Hexagon(HexPoint(6, 3), 9).radiusBoundary().size
         )
     }
 }
