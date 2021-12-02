@@ -3,6 +3,7 @@
 package lesson7.task1
 
 import ru.spbstu.wheels.appendLine
+import ru.spbstu.wheels.toMutableMap
 import java.io.File
 import java.lang.Integer.max
 import java.util.*
@@ -97,37 +98,21 @@ fun countOf(line: String, findLine: String): Int {
     }
     return counter
 }
-/*
-// Решение номер 2, оно сделано так, как вы скорее всего хотели, но работает оно медленне, я получил таймлимит
-// Напишите, что я делаю не так
-fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
-    val map = mutableMapOf<String, Int>()
-    // Создана с целью не переводить в нижний регистр по сто раз, но понимать, какое слово было изначально
-    val substringsLowerMap = mutableMapOf<String, String>()
-    for (i in substrings) substringsLowerMap[i.lowercase(Locale.getDefault())] = i
-    File(inputName).forEachLine { line ->
-        val lineLower = line.lowercase(Locale.getDefault())
-        for (i in substringsLowerMap.keys) {
-            map[substringsLowerMap[i]!!] =
-                map[substringsLowerMap[i]!!]?.plus(countOf(lineLower, i)) ?: countOf(lineLower, i)
-        }
-    }
-    return map
-}
-*/
 
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
-    val map = mutableMapOf<String, Int>()
-    val textList = File(inputName).readLines().map { it.lowercase(Locale.getDefault()) }
-    for (i in substrings) {
-        var count = 0
-        val substringLower = i.lowercase(Locale.getDefault())
-        for (j in textList) {
-            count += countOf(j, substringLower)
+    val substringsUnique = substrings.toSet().toList()
+    val answer = mutableMapOf<String, Int>()
+    // Создана с целью не переводить регистр по 100 раз
+    val substringsLowerMap = substringsUnique.map { it to it.lowercase(Locale.getDefault()) }.toMutableMap()
+    File(inputName).forEachLine { line ->
+        val lineLower = line.lowercase(Locale.getDefault())
+        for ((i, j) in substringsUnique.withIndex()) {
+            answer[substringsUnique[i]] =
+                answer[substringsUnique[i]]?.plus(countOf(lineLower, substringsLowerMap[j]!!))
+                    ?: countOf(lineLower, substringsLowerMap[j]!!)
         }
-        map[i] = count
     }
-    return map
+    return answer
 }
 
 /**
@@ -147,7 +132,7 @@ fun sibilants(inputName: String, outputName: String) {
     val regex = "[ЧчЩщЖжШш][ЯяЮюЫы]".toRegex()
     File(outputName).bufferedWriter().use { writer ->
         File(inputName).forEachLine { i ->
-            writer.appendLine(i.replace(regex, transform = {
+            writer.appendLine(i.replace(regex) {
                 it.value[0] + when (it.value[1]) {
                     'ы' -> "и"
                     'Ы' -> "И"
@@ -157,7 +142,7 @@ fun sibilants(inputName: String, outputName: String) {
                     'Ю' -> "У"
                     else -> it.value[1].toString()
                 }
-            }))
+            })
         }
     }
 }
@@ -181,7 +166,8 @@ fun sibilants(inputName: String, outputName: String) {
  */
 fun centerFile(inputName: String, outputName: String) {
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.maxOfOrNull { it.length }?.toInt() ?: 0
+    if (textList.isEmpty()) return
+    val maxLen = textList.maxOf { it.length }
     File(outputName).bufferedWriter().use { writer ->
         for (i in textList)
             writer.appendLine(i.padStart(i.length + (maxLen - i.length) / 2, ' '))
@@ -218,23 +204,24 @@ fun centerFile(inputName: String, outputName: String) {
 fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val textList = File(inputName).readLines().map { it.trim() }
-    val maxLen = textList.maxOfOrNull { it.length }?.toInt() ?: 0
+    if (textList.isEmpty()) return
+    val maxLen = textList.maxOf { it.length }
     val wordsInText = textList.map { it.replace("""\s+""".toRegex(), " ").split(' ') }
     for (i in wordsInText.indices) {
         if (wordsInText[i].size == 1) {
             writer.appendLine(textList[i])
             continue
         }
-        val needSpaces = maxLen - wordsInText[i].fold("") { line, add -> line + add }.length
-        var remainingSpaces = needSpaces % (wordsInText[i].size - 1)
+        // Число пробелов, которые необходимо добавить
+        val needSpaces = maxLen - wordsInText[i].sumOf { it.length }
+        // Минимальное число пробелов между словами
         val spacesBetween = needSpaces / (wordsInText[i].size - 1)
+        // Число пробелов, которые необходимо надбавить к минимальной длине пробела
+        var remainingSpaces = needSpaces % (wordsInText[i].size - 1) + 1
         writer.appendLine(
             wordsInText[i].fold("") { line, add ->
                 remainingSpaces -= 1
-                line + add + buildString {
-                    for (a in (if (remainingSpaces >= 0) 0 else 1)..spacesBetween)
-                        append(' ')
-                }
+                line + buildString(' ', spacesBetween + if (remainingSpaces >= 0) 1 else 0) + add
             }.trim()
         )
     }
@@ -373,9 +360,14 @@ fun checkUniqueness(str: String): Boolean {
 }
 
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-    val uniquenessWords =
-        File(inputName).readLines().filter { checkUniqueness(it.lowercase(Locale.getDefault())) }
-    val maxSize = uniquenessWords.map { it.length }.maxOrNull()
+    val uniquenessWords = mutableListOf<String>()
+    var maxSize = 0
+    File(inputName).forEachLine { line ->
+        if (checkUniqueness(line.lowercase(Locale.getDefault()))) {
+            uniquenessWords.add(line)
+            maxSize = max(line.length, maxSize)
+        }
+    }
     File(outputName).bufferedWriter()
         .use { writer -> writer.appendLine(uniquenessWords.filter { it.length == maxSize }.joinToString()) }
 }
@@ -498,9 +490,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
         }
     }
     str += "</p></body></html>"
-    val writer = File(outputName).bufferedWriter()
-    writer.appendLine(str)
-    writer.close()
+    File(outputName).bufferedWriter().use { writer -> writer.appendLine(str) }
 }
 
 /**
@@ -632,9 +622,7 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     }
     toList(if (lines.first[0].trim()[0] == '*') "ul" else "ol")
     str += "</p></body></html>"
-    val writer = File(outputName).bufferedWriter()
-    writer.appendLine(str)
-    writer.close()
+    File(outputName).bufferedWriter().use { writer -> writer.appendLine(str) }
 }
 
 /**
@@ -696,9 +684,7 @@ fun markdownToHtml(inputName: String, outputName: String) {
         numberOfLine++
     }
     str += "</p></body></html>"
-    val writer = File(outputName).bufferedWriter()
-    writer.appendLine(str)
-    writer.close()
+    File(outputName).bufferedWriter().use { writer -> writer.appendLine(str) }
 }
 
 /**
@@ -734,28 +720,28 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
     val rhvLength = rhv.toString().length
     val lenString =
         (lhv * rhv).toString().length + 1
-    val writer = File(outputName).bufferedWriter()
-    // Создание первых 4 строк
-    writer.appendLine(
-        buildString(' ', lenString - lhv.toString().length) + lhv +
-                "\n*" + buildString(' ', lenString - rhvLength - 1) + rhv +
-                "\n" + buildString('-', lenString) +
-                "\n" + buildString(' ', lenString - (rhv % 10 * lhv).toString().length)
-                + rhv % 10 * lhv
-    )
-    // Создание строк, начинающихся с +
-    var rhvCopy = rhv / 10
-    for (i in 0..rhvLength - 2) {
+    File(outputName).bufferedWriter().use { writer ->
+        // Создание первых 4 строк
         writer.appendLine(
-            "+" +
-                    buildString(' ', lenString - (rhvCopy % 10 * lhv).toString().length - 2 - i)
-                    + rhvCopy % 10 * lhv
+            buildString(' ', lenString - lhv.toString().length) + lhv +
+                    "\n*" + buildString(' ', lenString - rhvLength - 1) + rhv +
+                    "\n" + buildString('-', lenString) +
+                    "\n" + buildString(' ', lenString - (rhv % 10 * lhv).toString().length)
+                    + rhv % 10 * lhv
         )
-        rhvCopy /= 10
+        // Создание строк, начинающихся с +
+        var rhvCopy = rhv / 10
+        for (i in 0..rhvLength - 2) {
+            writer.appendLine(
+                "+" +
+                        buildString(' ', lenString - (rhvCopy % 10 * lhv).toString().length - 2 - i)
+                        + rhvCopy % 10 * lhv
+            )
+            rhvCopy /= 10
+        }
+        // Добавление строки ответа
+        writer.appendLine(buildString('-', lenString) + "\n " + rhv * lhv)
     }
-    // Добавление строки ответа
-    writer.appendLine(buildString('-', lenString) + "\n " + rhv * lhv)
-    writer.close()
 }
 
 
@@ -802,75 +788,75 @@ private fun Int.pow(i: Int): Int {
 }
 
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    // Рассмотрим == 0, как частный случай
-    if (lhv / rhv == 0) {
-        writer.appendLine(
-            (if (lhv.len <= ((lhv / rhv) * rhv).len) " " else "") + "$lhv | $rhv\n" +
-                    buildString(' ', lhv.len - 2) + "-0   0\n" +
-                    buildString('-', max(lhv.len, 2)) + "\n" + (if (lhv < 10) " " else "") + "$lhv"
-        )
-    } else {
-        val lenLhv = lhv.len
-        var lastNum = 0
-        // На каком числе с конца остановились
-        var counter = 0
-        // Подсчет первого числа
-        for (i in (lenLhv - 1) downTo 0) {
-            lastNum = lastNum * 10 + (lhv / 10.pow(i)) % 10
-            counter += 1
-            if (lastNum / rhv != 0)
-                break
-        }
-        // Первая строка
-        writer.appendLine((if (lastNum.len <= ((lastNum / rhv) * rhv).len) " " else "") + "$lhv | $rhv")
-        // Вторая строка
-        writer.appendLine(
-            "-${lastNum - lastNum % rhv}" +
-                    buildString(' ', lenLhv - lastNum.len + 3) +
-                    "${lhv / rhv}"
-        )
-        val result = intToListFor(lhv / rhv, 1)
-        var indent = 0
-        for ((counterOfResult, i) in intToListFor(lhv, lastNum.len).withIndex()) {
-            val integerPart = lastNum - lastNum % rhv // То, что мы вычитаем
-            val remains = lastNum % rhv // Остаток от деления
+    File(outputName).bufferedWriter().use { writer ->
+        // Рассмотрим == 0, как частный случай
+        if (lhv / rhv == 0) {
             writer.appendLine(
-                // Отступ перед ----
+                (if (lhv.len <= ((lhv / rhv) * rhv).len) " " else "") + "$lhv | $rhv\n" +
+                        buildString(' ', lhv.len - 2) + "-0   0\n" +
+                        buildString('-', max(lhv.len, 2)) + "\n" + (if (lhv < 10) " " else "") + "$lhv"
+            )
+        } else {
+            val lenLhv = lhv.len
+            var lastNum = 0
+            // На каком числе с конца остановились
+            var counter = 0
+            // Подсчет первого числа
+            for (i in (lenLhv - 1) downTo 0) {
+                lastNum = lastNum * 10 + (lhv / 10.pow(i)) % 10
+                counter += 1
+                if (lastNum / rhv != 0)
+                    break
+            }
+            // Первая строка
+            writer.appendLine((if (lastNum.len <= ((lastNum / rhv) * rhv).len) " " else "") + "$lhv | $rhv")
+            // Вторая строка
+            writer.appendLine(
+                "-${lastNum - lastNum % rhv}" +
+                        buildString(' ', lenLhv - lastNum.len + 3) +
+                        "${lhv / rhv}"
+            )
+            val result = intToListFor(lhv / rhv, 1)
+            var indent = 0
+            for ((counterOfResult, i) in intToListFor(lhv, lastNum.len).withIndex()) {
+                val integerPart = lastNum - lastNum % rhv // То, что мы вычитаем
+                val remains = lastNum % rhv // Остаток от деления
+                writer.appendLine(
+                    // Отступ перед ----
+                    buildString(' ', indent) +
+                            // Построили полосу из ----
+                            buildString('-', max(lastNum.len, integerPart.len + 1)) + "\n" +
+                            // Построили пробелы
+                            buildString(' ', max(lastNum.len, integerPart.len + 1) + indent - remains.len) +
+                            // Добавили остаток от деления и снесли цифру
+                            "$remains$i\n" +
+                            // Добавили пробелы перед вычитаемым
+                            buildString(
+                                ' ',
+                                max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+                            ) +
+                            // Добавить вычитание
+                            "-${result[counterOfResult] * rhv}"
+                )
+                indent =
+                    max(lastNum.len, integerPart.len + 1) + indent - max(
+                        (result[counterOfResult] * rhv).len,
+                        remains.len
+                    )
+                lastNum = "$remains$i".toInt()
+            }
+            writer.appendLine(
                 buildString(' ', indent) +
-                        // Построили полосу из ----
-                        buildString('-', max(lastNum.len, integerPart.len + 1)) + "\n" +
-                        // Построили пробелы
-                        buildString(' ', max(lastNum.len, integerPart.len + 1) + indent - remains.len) +
-                        // Добавили остаток от деления и снесли цифру
-                        "$remains$i\n" +
-                        // Добавили пробелы перед вычитаемым
+                        buildString('-', max(lastNum.len, (lastNum - lastNum % rhv).len + 1)) + "\n" +
                         buildString(
                             ' ',
-                            max(lastNum.len, integerPart.len + 1) + indent - (result[counterOfResult] * rhv).len
+                            max(lastNum.len, (lastNum - lastNum % rhv).len + 1) + indent - (lastNum % rhv).len
                         ) +
-                        // Добавить вычитание
-                        "-${result[counterOfResult] * rhv}"
+                        // Добавили остаток от деления и снесли цифру
+                        "${lastNum % rhv}"
             )
-            indent =
-                max(lastNum.len, integerPart.len + 1) + indent - max(
-                    (result[counterOfResult] * rhv).len,
-                    remains.len
-                )
-            lastNum = "$remains$i".toInt()
         }
-        writer.appendLine(
-            buildString(' ', indent) +
-                    buildString('-', max(lastNum.len, (lastNum - lastNum % rhv).len + 1)) + "\n" +
-                    buildString(
-                        ' ',
-                        max(lastNum.len, (lastNum - lastNum % rhv).len + 1) + indent - (lastNum % rhv).len
-                    ) +
-                    // Добавили остаток от деления и снесли цифру
-                    "${lastNum % rhv}"
-        )
     }
-    writer.close()
 }
 
 
