@@ -175,7 +175,15 @@ Basic, Ruby, Swift.
 между                более               правой               парой               соседних               слов."""
         )
         File("temp.txt").delete()
-
+        alignFileByWidth("input/width_in3.txt", "temp.txt")
+        assertFileContent(
+            "temp.txt",
+            """a   a
+                |aa
+                |a a a
+            """.trimMargin()
+        )
+        File("temp.txt").delete()
     }
 
     @Test

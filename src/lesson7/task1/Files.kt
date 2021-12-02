@@ -206,13 +206,14 @@ fun centerFile(inputName: String, outputName: String) {
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val textList = File(inputName).readLines().map { it.trim() }
+    val regex = """\s+""".toRegex()
+    val textList = File(inputName).readLines().map { it.replace(regex, " ").trim() }
     if (textList.isEmpty()) {
         File(outputName).createNewFile()
         return
     }
     val maxLen = textList.maxOf { it.length }
-    val wordsInText = textList.map { it.replace("""\s+""".toRegex(), " ").split(' ') }
+    val wordsInText = textList.map { it.split(' ') }
     for (i in wordsInText.indices) {
         if (wordsInText[i].size == 1) {
             writer.appendLine(textList[i])
