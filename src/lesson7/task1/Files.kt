@@ -205,34 +205,34 @@ fun centerFile(inputName: String, outputName: String) {
  * 8) Если входной файл удовлетворяет требованиям 1-7, то он должен быть в точности идентичен выходному файлу
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    val regex = """\s+""".toRegex()
-    val textList = File(inputName).readLines().map { it.replace(regex, " ").trim() }
-    if (textList.isEmpty()) {
-        File(outputName).createNewFile()
-        return
-    }
-    val maxLen = textList.maxOf { it.length }
-    val wordsInText = textList.map { it.split(' ') }
-    for (i in wordsInText.indices) {
-        if (wordsInText[i].size == 1) {
-            writer.appendLine(textList[i])
-            continue
+    File(outputName).bufferedWriter().use { writer ->
+        val regex = """\s+""".toRegex()
+        val textList = File(inputName).readLines().map { it.replace(regex, " ").trim() }
+        if (textList.isEmpty()) {
+            File(outputName).createNewFile()
+            return
         }
-        // Число пробелов, которые необходимо добавить
-        val needSpaces = maxLen - wordsInText[i].sumOf { it.length }
-        // Минимальное число пробелов между словами
-        val spacesBetween = needSpaces / (wordsInText[i].size - 1)
-        // Число пробелов, которые необходимо надбавить к минимальной длине пробела
-        var remainingSpaces = needSpaces % (wordsInText[i].size - 1) + 1
-        writer.appendLine(
-            wordsInText[i].fold("") { line, add ->
-                remainingSpaces -= 1
-                line + buildString(' ', spacesBetween + if (remainingSpaces >= 0) 1 else 0) + add
-            }.trim()
-        )
+        val maxLen = textList.maxOf { it.length }
+        val wordsInText = textList.map { it.split(' ') }
+        for (i in wordsInText.indices) {
+            if (wordsInText[i].size == 1) {
+                writer.appendLine(textList[i])
+                continue
+            }
+            // Число пробелов, которые необходимо добавить
+            val needSpaces = maxLen - wordsInText[i].sumOf { it.length }
+            // Минимальное число пробелов между словами
+            val spacesBetween = needSpaces / (wordsInText[i].size - 1)
+            // Число пробелов, которые необходимо надбавить к минимальной длине пробела
+            var remainingSpaces = needSpaces % (wordsInText[i].size - 1) + 1
+            writer.appendLine(
+                wordsInText[i].fold("") { line, add ->
+                    remainingSpaces -= 1
+                    line + buildString(' ', spacesBetween + if (remainingSpaces >= 0) 1 else 0) + add
+                }.trim()
+            )
+        }
     }
-    writer.close()
 }
 
 /**
