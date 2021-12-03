@@ -103,7 +103,7 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     val substringsUnique = substrings.toSet().toList()
     val answer = mutableMapOf<String, Int>()
     // Создана с целью не переводить регистр по 100 раз
-    val substringsLowerMap = substringsUnique.map { it to it.lowercase(Locale.getDefault()) }.toMutableMap()
+    val substringsLowerMap = substringsUnique.associateWith { it.lowercase(Locale.getDefault()) }
     File(inputName).forEachLine { line ->
         val lineLower = line.lowercase(Locale.getDefault())
         for ((i, j) in substringsUnique.withIndex()) {
