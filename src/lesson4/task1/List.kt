@@ -245,11 +245,12 @@ fun roman(n: Int): String {
     var k = n
     val a = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
     val r = listOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
-    var ans = ""
-    for (i in 0..12) {
-        for (j in 0 until k / a[i]) {
-            ans += r[i]
-            k %= a[i]
+    val ans = buildString {
+        for (i in a.indices) {
+            for (j in 0 until k / a[i]) {
+                append(r[i])
+                k %= a[i]
+            }
         }
     }
     return ans
@@ -265,13 +266,14 @@ fun roman(n: Int): String {
 fun russian(n: Int): String {
     var k = n
     val e = listOf("один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять")
+    val es = listOf("одна", "две")
     val dop = listOf(
-        "десять", "одинадцать", "двенадцать", "тринадцать",
+        "десять", "одиннадцать", "двенадцать", "тринадцать",
         "четырнадцать", "пятнадцать", "шестнадцать",
         "семнадцать", "восемнадцать", "девятнадцать"
     )
     val d = listOf(
-        "двадцать ",
+        "двадцать",
         "тридцать",
         "сорок",
         "пятьдесят",
@@ -287,8 +289,58 @@ fun russian(n: Int): String {
     if (k == 0) {
         return "ноль"
     }
-    if (k > 999) {
-        var s = k / 1000
-
+    val ans = buildString {
+        if (k > 999) {
+            var m = k / 1000
+            if (m / 100 != 0) {
+                append(s[m / 100 - 1])
+                append(" ")
+            }
+            if (m / 10 % 10 == 1) {
+                append(dop[m % 10])
+                append(" тысяч")
+            } else {
+                if (m / 10 % 10 != 0) {
+                    append(d[m / 10 % 10 - 2])
+                    append(" ")
+                }
+                if (m % 10 != 0) {
+                    when {
+                        m % 10 == 1 || m % 10 == 2 -> append(es[m % 10 - 1])
+                        else -> append(e[m % 10 - 1])
+                    }
+                    append(" ")
+                }
+                when {
+                    m % 10 == 1 -> append("тысяча")
+                    m % 10 == 2 || m % 10 == 3 || m % 10 == 4 -> append("тысячи")
+                    else -> append("тысяч")
+                }
+            }
+        }
+        var m = k % 1000
+        if (m != 0 && k / 1000 != 0) {
+            append(" ")
+        }
+        if (m / 100 != 0) {
+            append(s[m / 100 - 1])
+            if (m % 100 != 0) {
+                append(" ")
+            }
+        }
+        if (m / 10 % 10 == 1) {
+            append(dop[m % 10])
+        } else {
+            if (m / 10 % 10 != 0) {
+                append(d[m / 10 % 10 - 2])
+                if (m % 10 != 0) {
+                    append(" ")
+                }
+            }
+            if (m % 10 != 0) {
+                append(e[m % 10 - 1])
+            }
+        }
     }
+    return ans
 }

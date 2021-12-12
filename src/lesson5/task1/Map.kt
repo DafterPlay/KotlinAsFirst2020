@@ -2,6 +2,9 @@
 
 package lesson5.task1
 
+import kotlin.math.max
+import kotlin.math.min
+
 // Урок 5: ассоциативные массивы и множества
 // Максимальное количество баллов = 14
 // Рекомендуемое количество баллов = 9
@@ -277,7 +280,16 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  *   findSumOfTwo(listOf(1, 2, 3), 4) -> Pair(0, 2)
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
-fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> = TODO()
+fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
+    for ((i, a) in list.withIndex()) {
+        for ((j, b) in list.withIndex()) {
+            if (a + b == number && i != j) {
+                return Pair(min(i, j), max(i, j))
+            }
+        }
+    }
+    return Pair(-1, -1)
+}
 
 /**
  * Очень сложная (8 баллов)
@@ -300,4 +312,34 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> = TODO()
  *     450
  *   ) -> emptySet()
  */
-fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> = TODO()
+fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+    var t = treasures.keys.toMutableList()
+    var p = treasures.values.toMutableList()
+    val dlina = p.size
+    var provirka = 0
+    for (i in 0 until dlina) {
+        if (p[i].first < capacity) {
+            provirka = 1
+        }
+    }
+    if (provirka == 0) {
+        return emptySet()
+    }
+    t.add(0, " ")
+    p.add(0, Pair(0, 0))
+    var mas: Array<IntArray> = Array(p.size + 1) { IntArray(capacity + 1) { 0 } }
+    var stroke = Array(p.size + 1) { Array(capacity + 1) { "" } }
+    for (i in 1..dlina) {
+        for (j in 0..capacity) {
+            mas[i][j] = mas[i - 1][j]
+            stroke[i][j] = stroke[i - 1][j]
+            if (j >= p[i].first && mas[i - 1][j - p[i].first] + p[i].second > mas[i][j]) {
+                mas[i][j] = mas[i - 1][j - p[i].first] + p[i].second
+                stroke[i][j] = stroke[i - 1][j - p[i].first] + t[i]
+            }
+        }
+    }
+    val ans = mutableSetOf<String>()
+    ans += stroke[dlina][capacity].split(",  ")
+    return ans
+}
