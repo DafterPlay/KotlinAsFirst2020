@@ -318,7 +318,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     val dlina = p.size
     var provirka = 0
     for (i in 0 until dlina) {
-        if (p[i].first < capacity) {
+        if (p[i].first <= capacity) {
             provirka = 1
         }
     }
