@@ -335,9 +335,21 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             stroke[i][j] = stroke[i - 1][j]
             if (j >= p[i].first && mas[i - 1][j - p[i].first] + p[i].second > mas[i][j]) {
                 mas[i][j] = mas[i - 1][j - p[i].first] + p[i].second
-                stroke[i][j] = stroke[i - 1][j - p[i].first] + t[i]
+                if (stroke[i - 1][j - p[i].first] == "") {
+                    stroke[i][j] = t[i]
+                } else {
+                    stroke[i][j] = stroke[i - 1][j - p[i].first] + " " + t[i]
+                }
+
             }
         }
     }
-    return stroke[dlina][capacity].split(",  ").toSet()
+
+    //print(stroke[dlina][capacity])
+    //println(stroke[dlina][capacity].split(" ").toSet())
+    return stroke[dlina][capacity].split(" ").toSet()
 }
+
+//fun main() {
+    //bagPacking(mapOf("0" to (1 to 1), "1" to (1 to 1)), 450)
+//}
