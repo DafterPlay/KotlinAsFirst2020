@@ -344,12 +344,6 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             }
         }
     }
-
-    //print(stroke[dlina][capacity])
-    //println(stroke[dlina][capacity].split(" ").toSet())
     return stroke[dlina][capacity].split(" ").toSet()
 }
 
-//fun main() {
-    //bagPacking(mapOf("0" to (1 to 1), "1" to (1 to 1)), 450)
-//}
