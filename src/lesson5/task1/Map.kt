@@ -339,7 +339,5 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             }
         }
     }
-    val ans = mutableSetOf<String>()
-    ans += stroke[dlina][capacity].split(",  ")
-    return ans
+    return stroke[dlina][capacity].split(",  ").toSet()
 }
