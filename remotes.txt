@@ -1,0 +1,7 @@
+git remote -v
+my2021  https://github.com/DafterPlay/KotlinAsFirst2021.git (fetch)
+my2021  https://github.com/DafterPlay/KotlinAsFirst2021.git (push)
+nikita2021      https://github.com/amersmer/KotlinAsFirst2021.git (fetch)
+nikita2021      https://github.com/amersmer/KotlinAsFirst2021.git (push)
+origin  https://github.com/DafterPlay/KotlinAsFirst2020.git (fetch)
+origin  https://github.com/DafterPlay/KotlinAsFirst2020.git (push)
